@@ -1,8 +1,14 @@
 #include "Socket.hpp"
 #include <sys/socket.h>
 #include <fcntl.h>
+#include <stdexcept>
+#include <unistd.h>
+#include <netinet/in.h>
+#include <cstring>
+#include <arpa/inet.h>
+#include "../config.hpp"
 
-namespace IRC
+namespace irc
 {
 	namespace net
 	{
@@ -47,12 +53,40 @@ namespace IRC
 		/* Returns the internal file descriptor */
 		int Socket::GetFd() const { return fd; }
 
-		/* Constructs a ServerSocket*/
+		/* Constructs a ServerSocket */
 		ServerSocket::ServerSocket(){ }
 
-		/* Destructs the ServerSocket object*/
+		/* Destructs the ServerSocket*/
 		ServerSocket::~ServerSocket() { }
 
-		 
-	} // IRC net
+		/* Binds ServerSocket to @port */
+		void ServerSocket::Bind(int port)
+		{
+			struct sockaddr_in server_address;
+
+			memset(&server_address, 0, sizeof(server_address));
+			server_address.sin_family = AF_INET;
+			server_address.sin_addr.s_addr = inet_addr(IP);
+			server_address.sin_port = htons(port);
+
+			if (bind(fd, (struct sockaddr *) &server_address, sizeof(server_address)) == -1)
+				throw std::runtime_error("bind(fd, ...) returned ERROR");
+		}
+
+		/* Sets ServerSocket into listening mode for @BACKLOG elements in queue */
+		void ServerSocket::Listen() { listen(fd, BACKLOG); }
+
+		/* Accepts an incoming request for a new client Connection */
+		ClientSocket* ServerSocket::Accept()
+		{
+			struct sockaddr_in client_address;
+			socklen_t size = sizeof(client_address);
+
+			int new_socket = accept(fd, (sockaddr *) &client_address, &size);
+			if (new_socket == -1)
+				throw std::runtime_error("accept(fd, ...) returned ERROR");
+			return new ClientSocket(new_socket);
+		}
+
+	} // irc net
 }

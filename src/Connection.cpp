@@ -1,0 +1,8 @@
+namespace irc
+{
+	namespace connection
+	{
+		
+	}
+	
+}

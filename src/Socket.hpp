@@ -1,7 +1,4 @@
-#include <stdexcept>
-#include <unistd.h>
-
-namespace IRC
+namespace irc
 {
 	namespace net
 	{
@@ -11,15 +8,24 @@ namespace IRC
 				int fd;
 			private:
 				Socket(const Socket& other);
-			private:
-				void SetNonBlocking_();
-				void SetOptions_();
 			public:
 				Socket();
 				virtual ~Socket();
+			private:
+				void	SetNonBlocking_();
+				void	SetOptions_();
 			public:
-				int	GetFd() const;
-				void Close();
+				int		GetFd() const;
+				void	Close();
+		};
+
+		class ClientSocket: public Socket
+		{
+			private:
+				ClientSocket(const ClientSocket& other);
+			public:
+				~ClientSocket();
+				ClientSocket(int socket);
 		};
 
 		class ServerSocket: public Socket
@@ -29,8 +35,10 @@ namespace IRC
 			public:
 				~ServerSocket();
 				ServerSocket();
-				void listen();
-				void bind(int port);
+			public:
+				void			Listen();
+				void 			Bind(int port);
+				ClientSocket*	Accept();
 		};
 	};
 }
