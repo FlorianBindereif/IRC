@@ -2,14 +2,8 @@
 
 namespace irc
 {
-	namespace buffer
-	{
-		class Buffer
-		{
-			private:
-				char buffer[MESSAGE_LENGTH];
-			public:
-				fill();
-		};
-	}
+	private:
+		char buffer[MESSAGE_LENGTH];
+	public:
+		fill();
 }

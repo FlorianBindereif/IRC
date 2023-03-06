@@ -17,7 +17,8 @@ int main(int argc, char **argv)
 		return 0;
 	}
 	// try catch block required still
-	irc::Server server(port, argv[2]);
+	irc::Server server();
+	server.Init()
 	while(true)
 	{
 		server.Run();

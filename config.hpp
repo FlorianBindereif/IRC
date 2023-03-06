@@ -8,4 +8,12 @@ namespace IRC
 
 	//IP the Server will be listening to
 	#define IP	"129.168.0.0"
+
+	//Default Port the Server will bind to
+	#define PORT 6660
+
+	//Pollevents to listen to
+	#define POLLEVENTS (POLLIN|POLLOUT|POLLERR|POLLHUP|POLLNVAL)
+
+		
 }
