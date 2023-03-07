@@ -1,3 +1,6 @@
+#ifndef CONNECTION_HPP
+#define CONNECTION_HPP
+
 #include "Socket.hpp"
 #include <string>
 
@@ -11,6 +14,7 @@ namespace irc
 			int			GetFd() const;
 			virtual int Receive() = 0;
 			virtual int Send() = 0;
+			virtual void CloseConnection() = 0;
 	};
 
 	class ClientConnection: public Connection
@@ -28,6 +32,7 @@ namespace irc
 		public:
 			int Receive();
 			int Send();
+			void CloseConnection();
 	};
 
 	class ServerConnection: public Connection
@@ -35,7 +40,11 @@ namespace irc
 		public:
 			void Bind(int port);
 			void Listen();
+		public:
 			int Receive();
 			int Send();
+			void CloseConnection();
 	};
 }
+
+#endif // CONNECTION_HPP

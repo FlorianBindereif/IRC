@@ -1,3 +1,6 @@
+#ifndef SOCKET_HPP
+#define SOCKET_HPP
+
 namespace irc
 {
 	class Socket
@@ -17,3 +20,5 @@ namespace irc
 			void	Close();
 	};
 }
+
+#endif
