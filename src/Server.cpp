@@ -15,14 +15,15 @@ namespace irc
 			delete(*it);
 	}
 
-	int Server::Init(std::string password = PASSWORD, int port = PORT)
+	int Server::Init(std::string password, int port)
 	{
 		ServerConnection* server_con = new ServerConnection;
+		server_con->SetOptions();
 		server_con->Bind(port);
 		server_con->Listen();
 		connections_.push_back(server_con);
 
-		pollfd server_poll{.revents = 0, .events = POLLEVENTS, .fd = server_con->GetFd()};
+		pollfd server_poll = {.revents = 0, .events = POLLEVENTS, .fd = server_con->GetFd()};
 		polls_.push_back(server_poll);
 
 		password_ = password;
@@ -32,14 +33,14 @@ namespace irc
 	{
 		int revent_count;
 		
-		revent_count = poll(polls_.data(), polls_.size(), -1);
+		revent_count = poll(polls_.data(), polls_.size(), 100);
 		if (revent_count == -1)
 			return ;
 		for (int i = 0; i < polls_.size(); i++)
 		{
 			if (polls_[i].revents == 0)
 				continue;
-			else if (polls_[i].revents & POLLERR | POLLHUP | POLLNVAL)
+			else if (polls_[i].revents & (POLLERR | POLLHUP | POLLNVAL))
 				connections_[i]->CloseConnection();
 			else if (polls_[i].revents & POLL_IN)
 				connections_[i]->Receive();
@@ -47,5 +48,10 @@ namespace irc
 				connections_[i]->Send();
 			polls_[i].revents = 0;
 		}
+	}
+
+	void Server::AddUser()
+	{
+		
 	}
 }

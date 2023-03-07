@@ -17,9 +17,9 @@ namespace irc
 			typedef std::map<std::string, Connection *>::iterator 	nick_iter;
 
 		private:
-			std::vector<pollfd> polls_;
-			std::vector<Connection *> connections_;
-			std::map<std::string, Connection *> nicks_;
+			static std::vector<pollfd> polls_;
+			static std::vector<Connection *> connections_;
+			static std::map<std::string, Connection *> nicks_;
 			std::string password_;
 
 		private:
@@ -30,8 +30,8 @@ namespace irc
 		public:
 			int		Init(std::string password = PASSWORD, int port = PORT);
 			void	Run();
-			void	AddUser();
-			void	RemoveUser();
+			static void	AddConnection(int fd);
+			static void	RemoveUser();
 	};
 }
 

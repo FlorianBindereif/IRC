@@ -1,9 +1,9 @@
 NAME = irc
 FLAGS = -Wall -Wextra -Werror -std=c++98
-SRCS =	src/Connections.cpp \
-		src/Server.cpp \
-		src/Socket.cpp \
-		src/main.cpp
+SRCS =	Connections.cpp \
+		Server.cpp \
+		Socket.cpp \
+		main.cpp
 		
 OBJ_PATH = ./objs/
 OBJS = $(patsubst %.cpp,$(OBJ_PATH)%.o,$(SRCS))

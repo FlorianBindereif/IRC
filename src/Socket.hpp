@@ -6,15 +6,15 @@ namespace irc
 	class Socket
 	{
 		protected:
-			int fd;
+			int fd_;
 		private:
 			Socket(const Socket& other);
 		public:
 			Socket();
+			Socket(int fd);
 			virtual ~Socket();
 		private:
 			void	SetNonBlocking_();
-			void	SetOptions_();
 		public:
 			int		GetFd() const;
 			void	Close();

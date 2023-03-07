@@ -7,16 +7,15 @@ namespace IRC
 	#define MESSAGE_LENGTH 512
 
 	//IP the Server will be listening to
-	#define IP	"129.168.0.0"
+	#define IP	"127.0.0.1"
 
 	//Password required Client to connect to the Server
 	#define PASSWORD "IRC42"
 
 	//Default Port the Server will bind to
-	#define PORT 6660
+	#define PORT 6060
 
 	//Pollevents to listen to
 	#define POLLEVENTS (POLLIN|POLLOUT|POLLERR|POLLHUP|POLLNVAL)
 
-		
 }

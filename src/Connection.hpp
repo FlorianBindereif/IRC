@@ -3,6 +3,7 @@
 
 #include "Socket.hpp"
 #include <string>
+#include <iostream>
 
 namespace irc
 {
@@ -11,10 +12,12 @@ namespace irc
 		protected:
 			Socket socket_;
 		public:
-			int			GetFd() const;
-			virtual int Receive() = 0;
-			virtual int Send() = 0;
-			virtual void CloseConnection() = 0;
+			Connection(int fd);
+			virtual			~Connection(){};
+			int				GetFd() const;
+			virtual void	Receive() = 0;
+			virtual void	Send() = 0;
+			virtual void	CloseConnection() = 0;
 	};
 
 	class ClientConnection: public Connection
@@ -30,20 +33,23 @@ namespace irc
 			} user_data_;
 
 		public:
-			int Receive();
-			int Send();
-			void CloseConnection();
+			ClientConnection(int fd);
+		public:
+			void Receive(){};
+			void Send(){};
+			void CloseConnection(){};
 	};
-
+	
 	class ServerConnection: public Connection
 	{
 		public:
 			void Bind(int port);
 			void Listen();
+			void SetOptions();
 		public:
-			int Receive();
-			int Send();
-			void CloseConnection();
+			void Receive(){};
+			void Send(){};
+			void CloseConnection(){};
 	};
 }
 
