@@ -10,14 +10,18 @@ namespace irc
 	class Connection
 	{
 		protected:
-			Socket socket_;
+			Socket			socket_;
+			bool 			status_;
 		public:
-			Connection(int fd);
+							Connection(int fd);
 			virtual			~Connection(){};
+		public:
 			int				GetFd() const;
+			bool			GetStatus() const;
+			void			CloseConnection();
+		public:
 			virtual void	Receive() = 0;
 			virtual void	Send() = 0;
-			virtual void	CloseConnection() = 0;
 	};
 
 	class ClientConnection: public Connection
@@ -37,19 +41,20 @@ namespace irc
 		public:
 			void Receive(){};
 			void Send(){};
-			void CloseConnection(){};
 	};
 	
 	class ServerConnection: public Connection
 	{
 		public:
-			void Bind(int port);
-			void Listen();
-			void SetOptions();
+			ServerConnection();
+		public:
+			void 				Bind(int port);
+			void 				Listen();
+			void 				SetOptions();
+			int					Accept();
 		public:
 			void Receive(){};
 			void Send(){};
-			void CloseConnection(){};
 	};
 }
 

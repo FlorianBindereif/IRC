@@ -17,7 +17,7 @@ namespace irc
 
 	int Server::Init(std::string password, int port)
 	{
-		ServerConnection* server_con = new ServerConnection;
+		ServerConnection* server_con = new ServerConnection();
 		server_con->SetOptions();
 		server_con->Bind(port);
 		server_con->Listen();
@@ -40,18 +40,36 @@ namespace irc
 		{
 			if (polls_[i].revents == 0)
 				continue;
-			else if (polls_[i].revents & (POLLERR | POLLHUP | POLLNVAL))
+			if (polls_[i].revents & (POLLERR | POLLHUP | POLLNVAL))
 				connections_[i]->CloseConnection();
 			else if (polls_[i].revents & POLL_IN)
 				connections_[i]->Receive();
 			if (polls_[i].revents & POLL_OUT)
 				connections_[i]->Send();
-			polls_[i].revents = 0;
+		}
+		CleanUp();
+	}
+
+	void Server::CleanUp()
+	{
+		//delete aus usermap noch notwendig
+		int i = 0;
+		while (i < connections_.size())
+		{
+			if (connections_[i]->GetStatus() == false)
+			{
+				connections_.erase(connections_.begin() + i);
+				polls_.erase(polls_.begin() + i);
+				continue;
+			}
+			i++;
 		}
 	}
 
-	void Server::AddUser()
+	void Server::AddConnection(ClientConnection* new_connection)
 	{
-		
+		Server::connections_.push_back(new_connection);
+		pollfd client_poll = {.revents = 0, .events = POLLEVENTS, .fd = new_connection->GetFd()};
+		Server::polls_.push_back(client_poll);
 	}
 }

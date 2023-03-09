@@ -30,9 +30,12 @@ namespace irc
 		public:
 			int		Init(std::string password = PASSWORD, int port = PORT);
 			void	Run();
-			static void	AddConnection(int fd);
-			static void	RemoveUser();
+			void	CleanUp();
+			static void	AddConnection(ClientConnection* new_connection);
 	};
-}
 
+	std::vector<Connection *> Server::connections_;
+	std::map<std::string, Connection *> Server::nicks_;
+	std::vector<pollfd> Server::polls_;
+}
 #endif

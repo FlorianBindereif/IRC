@@ -7,8 +7,16 @@
 
 namespace irc
 {
+	Connection::Connection(int fd): socket_(fd), status_(true)	{ }
+
 	int Connection::GetFd() const
 	{ return socket_.GetFd(); }
+
+	void Connection::CloseConnection()
+	{ status_ = false ;}
+
+	bool Connection::GetStatus() const
+	{ return status_; }
 
 	/* Sets Socket into listening mode for @BACKLOG elements in queue */
 	void ServerConnection::Listen()
@@ -16,6 +24,8 @@ namespace irc
 		if (listen(GetFd(), BACKLOG) == -1)
 			throw std::runtime_error("listen(GetFd(), BACKLOG) returned ERROR");
 	}
+
+	ServerConnection::ServerConnection() {};
 
 	/* Binds ServerSocket to @port */
 	void ServerConnection::Bind(int port)
@@ -40,27 +50,30 @@ namespace irc
 			throw std::runtime_error("setsockopt(fd, SOL_SOCKET, ...) returned ERROR");
 	}
 
-	Connection::Connection(int fd): socket_(fd)
-	{ }
-	ClientConnection::ClientConnection(int fd): Connection(fd)
-	{ }
 
 	/* Accepts an incoming request for a new client Connection */
+	int	ServerConnection::Accept()
+	{
+		struct sockaddr_in client_address;
+		socklen_t size = sizeof(client_address);
+		int new_fd = accept(GetFd(), (sockaddr *) &client_address, &size);
+		if (new_fd == -1)
+			throw std::runtime_error("accept(GetFd(), ...) returned ERROR");
+		return new_fd;
+	}
+
+
 	void ServerConnection::Receive()
 	{
 		try
-		{
-			struct sockaddr_in client_address;
-			socklen_t size = sizeof(client_address);
-			int new_socket = accept(GetFd(), (sockaddr *) &client_address, &size);
-			if (new_socket == -1)
-				throw std::runtime_error("accept(GetFd(), ...) returned ERROR");
-			ClientConnection* new_client =  new ClientConnection(new_socket);
-			Server::AddConnection();
+		{	int new_fd = Accept();
+			Server::AddConnection(new ClientConnection(new_fd));
 		}
 		catch(const std::exception& error)
 		{
 			std::cerr << error.what() << '\n';
 		}
 	}
+
+	ClientConnection::ClientConnection(int fd): Connection(fd) { }
 }
