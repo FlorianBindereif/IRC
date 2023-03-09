@@ -3,9 +3,9 @@
 
 #include <vector>
 #include "config.hpp"
-#include "Connection.hpp"
 #include <map>
 #include <poll.h>
+#include "Connection.hpp"
 
 namespace irc
 {
@@ -15,6 +15,7 @@ namespace irc
 			typedef std::vector<Connection *>::iterator			 	conn_iter;
 			typedef std::vector<pollfd>::iterator				 	poll_iter;
 			typedef std::map<std::string, Connection *>::iterator 	nick_iter;
+			typedef std::vector<pollfd>::size_type					size_type;
 
 		private:
 			static std::vector<pollfd> polls_;
@@ -28,14 +29,11 @@ namespace irc
 			Server();
 			~Server();
 		public:
-			int		Init(std::string password = PASSWORD, int port = PORT);
+			void	Init(std::string password = PASSWORD, int port = PORT);
 			void	Run();
 			void	CleanUp();
 			static void	AddConnection(ClientConnection* new_connection);
 	};
-
-	std::vector<Connection *> Server::connections_;
-	std::map<std::string, Connection *> Server::nicks_;
-	std::vector<pollfd> Server::polls_;
 }
+
 #endif

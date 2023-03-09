@@ -1,8 +1,11 @@
 #include "../inc/Server.hpp"
-#include "../inc/config.hpp"
 
 namespace irc
 {
+	std::vector<Connection *> Server::connections_;
+	std::map<std::string, Connection *> Server::nicks_;
+	std::vector<pollfd> Server::polls_;
+
 	Server::Server()
 	{ 
 		polls_.reserve(1024);
@@ -15,7 +18,7 @@ namespace irc
 			delete(*it);
 	}
 
-	int Server::Init(std::string password, int port)
+	void Server::Init(std::string password, int port)
 	{
 		ServerConnection* server_con = new ServerConnection();
 		server_con->SetOptions();
@@ -36,7 +39,7 @@ namespace irc
 		revent_count = poll(polls_.data(), polls_.size(), 100);
 		if (revent_count == -1)
 			return ;
-		for (int i = 0; i < polls_.size(); i++)
+		for (size_type i = 0; i < polls_.size(); i++)
 		{
 			if (polls_[i].revents == 0)
 				continue;
@@ -53,7 +56,7 @@ namespace irc
 	void Server::CleanUp()
 	{
 		//delete aus usermap noch notwendig
-		int i = 0;
+		size_type i = 0;
 		while (i < connections_.size())
 		{
 			if (connections_[i]->GetStatus() == false)

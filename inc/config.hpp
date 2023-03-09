@@ -1,3 +1,6 @@
+#ifndef CONFIG_HPP
+#define CONFIG_HPP
+
 namespace IRC
 {
 	//Number of pending connections the serverque will hold 
@@ -17,5 +20,5 @@ namespace IRC
 
 	//Pollevents to listen to
 	#define POLLEVENTS (POLLIN|POLLOUT|POLLERR|POLLHUP|POLLNVAL)
-
 }
+#endif

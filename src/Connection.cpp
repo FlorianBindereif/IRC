@@ -1,13 +1,13 @@
 #include "../inc/Connection.hpp"
-#include <unistd.h>
-#include <netinet/in.h>
-#include <arpa/inet.h>
-#include "../inc/config.hpp"
 #include "../inc/Server.hpp"
 
 namespace irc
 {
+	Connection::Connection(): socket_(), status_(true) { }
+
 	Connection::Connection(int fd): socket_(fd), status_(true)	{ }
+	
+	Connection::~Connection() {}
 
 	int Connection::GetFd() const
 	{ return socket_.GetFd(); }
@@ -26,6 +26,8 @@ namespace irc
 	}
 
 	ServerConnection::ServerConnection() {};
+
+	ServerConnection::~ServerConnection() {};
 
 	/* Binds ServerSocket to @port */
 	void ServerConnection::Bind(int port)
@@ -62,7 +64,7 @@ namespace irc
 		return new_fd;
 	}
 
-
+	/* Adds a new Client Connection to the Server */
 	void ServerConnection::Receive()
 	{
 		try
@@ -75,5 +77,13 @@ namespace irc
 		}
 	}
 
+	void ServerConnection::Send() {}
+
 	ClientConnection::ClientConnection(int fd): Connection(fd) { }
+
+	ClientConnection::~ClientConnection() { }
+
+	void ClientConnection::Send() {}
+
+	void ClientConnection::Receive(){};
 }

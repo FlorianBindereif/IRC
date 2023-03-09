@@ -2,8 +2,12 @@
 #define CONNECTION_HPP
 
 #include "Socket.hpp"
+#include "../inc/config.hpp"
 #include <string>
+#include <unistd.h>
 #include <iostream>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 namespace irc
 {
@@ -13,15 +17,16 @@ namespace irc
 			Socket			socket_;
 			bool 			status_;
 		public:
+							Connection();
 							Connection(int fd);
-			virtual			~Connection(){};
+			virtual			~Connection();
 		public:
 			int				GetFd() const;
 			bool			GetStatus() const;
 			void			CloseConnection();
 		public:
-			virtual void	Receive() = 0;
-			virtual void	Send() = 0;
+			virtual void	Receive() {};
+			virtual void	Send() {};
 	};
 
 	class ClientConnection: public Connection
@@ -37,24 +42,27 @@ namespace irc
 			} user_data_;
 
 		public:
-			ClientConnection(int fd);
+					ClientConnection();
+					ClientConnection(int fd);
+			virtual ~ClientConnection();
 		public:
-			void Receive(){};
-			void Send(){};
+			void 	Receive();
+			void 	Send();
 	};
-	
+
 	class ServerConnection: public Connection
 	{
 		public:
-			ServerConnection();
+					ServerConnection();
+			virtual ~ServerConnection();
 		public:
-			void 				Bind(int port);
-			void 				Listen();
-			void 				SetOptions();
-			int					Accept();
+			void 	Bind(int port);
+			void 	Listen();
+			void 	SetOptions();
+			int		Accept();
 		public:
-			void Receive(){};
-			void Send(){};
+			void 	Receive();
+			void 	Send();
 	};
 }
 
