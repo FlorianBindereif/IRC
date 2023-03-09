@@ -1,33 +1,49 @@
-NAME = irc
-FLAGS = -Wall -Wextra -Werror -std=c++98
-SRCS =	src/Connection.cpp \
-		src/Server.cpp \
-		src/Socket.cpp \
-		src/main.cpp
-		
-OBJS = $(patsubst %.cpp,%.o,$(SRCS))
-CPP = c++
+NAME        := irc
+CXX         := c++
+CXXFLAGS    := -Wall -Wextra -Werror -std=c++98
 
-all:$(NAME)
+CPPFLAGS    :=
+DEPFLAGS     = -MT $@ -MMD -MP -MF $(DDIR)/$*.d
+
+LDFLAGS     :=
+LDLIBS      :=
+
+VPATH       := src/
+SRCS        := main.cpp Connection.cpp Server.cpp Socket.cpp
+
+ODIR        := obj
+OBJS        := $(SRCS:%.cpp=$(ODIR)/%.o)
+
+DDIR        := $(ODIR)/.deps
+DEPS        := $(SRCS:%.cpp=$(DDIR)/%.d)
+
+# **************************************************************************** #
+#   RULES                                                                      #
+# **************************************************************************** #
+
+.PHONY: all clean fclean re
 
 $(NAME): $(OBJS)
-	@$(CPP) $(FLAGS) $(OBJS) -o $(NAME)
-	@echo "                                                         "
-	@echo " \033[1;32m  ___|   _ \    \  |   _ \ _ _|  |      ____|  __ \   | "
-	@echo "  |      |   |  |\/ |  |   |  |   |      __|    |   |  | "
-	@echo "  |      |   |  |   |  ___/   |   |      |      |   | _| "
-	@echo " \____| \___/  _|  _| _|    ___| _____| _____| ____/  _) \033[0m"
-	@echo "                                                         "
+	$(CXX) $(CXXFLAGS) $(LDFLAGS) $(OBJS) -o $@ $(LDLIBS)
 
-%.o: %.cpp
-	$(CPP) $(FLAGS) -c $< -o $@
+$(ODIR)/%.o: %.cpp $(DDIR)/%.d | $(ODIR) $(DDIR)
+	$(CXX) $(CXXFLAGS) $(CPPFLAGS) $(DEPFLAGS) -c $< -o $@
+
+$(ODIR):
+	mkdir -p $@
+
+$(DDIR):
+	mkdir -p $@
+
+all: $(NAME)
 
 clean:
-	@rm -rf $(OBJS)
-	@echo "\033[1;32m.o files removed!\033[0m"
+	$(RM) -r $(DDIR) $(ODIR)
 
 fclean: clean
-	@rm -rf $(NAME)
-	@echo "\033[1;32mbinary files removed!\033[0m"
+	$(RM) $(NAME)
 
 re: fclean all
+
+$(DEPS):
+-include $(DEPS)
