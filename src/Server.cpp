@@ -61,6 +61,7 @@ namespace irc
 		{
 			if (connections_[i]->GetStatus() == false)
 			{
+				std::cout << "USER: " << connections_[i]->GetFd() << " DISCONNECTED" << "\n";
 				connections_.erase(connections_.begin() + i);
 				polls_.erase(polls_.begin() + i);
 				continue;

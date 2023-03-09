@@ -84,10 +84,10 @@ namespace irc
 		ssize_t received;
 
 		received = recv(GetFd(), buffer, sizeof(buffer), 0);
-		if (received == -1)
+		if (received <= 0)
 			return ;
-		buffer_.Append(buffer);
-		std::cout << "input received: " << buffer << std::endl;
+		buffer_.Append(buffer, 0 , received);
+		std::cout << ">>" << buffer_.GetCommand() << "<<" << "\n";
 	}
 
 	void ServerConnection::Send() {}
