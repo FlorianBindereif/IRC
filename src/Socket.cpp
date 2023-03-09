@@ -1,4 +1,4 @@
-#include "Socket.hpp"
+#include "../inc/Socket.hpp"
 #include <sys/socket.h>
 #include <fcntl.h>
 #include <stdexcept>
@@ -6,7 +6,7 @@
 #include <netinet/in.h>
 #include <cstring>
 #include <arpa/inet.h>
-#include "../config.hpp"
+#include "../inc/config.hpp"
 #include <iostream>
 
 namespace irc
