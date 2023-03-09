@@ -2,7 +2,7 @@
 #define SERVER_HPP
 
 #include <vector>
-#include "../config.hpp"
+#include "config.hpp"
 #include "Connection.hpp"
 #include <map>
 #include <poll.h>

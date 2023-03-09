@@ -1,5 +1,5 @@
-#include "Server.hpp"
-#include "../config.hpp"
+#include "../inc/Server.hpp"
+#include "../inc/config.hpp"
 
 namespace irc
 {

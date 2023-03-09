@@ -1,17 +1,16 @@
 NAME = irc
 FLAGS = -Wall -Wextra -Werror -std=c++98
-SRCS =	Connections.cpp \
-		Server.cpp \
-		Socket.cpp \
-		main.cpp
+SRCS =	src/Connection.cpp \
+		src/Server.cpp \
+		src/Socket.cpp \
+		src/main.cpp
 		
-OBJ_PATH = ./objs/
-OBJS = $(patsubst %.cpp,$(OBJ_PATH)%.o,$(SRCS))
+OBJS = $(patsubst %.cpp,%.o,$(SRCS))
 CPP = c++
 
 all:$(NAME)
 
-$(NAME): $(OBJ_PATH) $(OBJS)
+$(NAME): $(OBJS)
 	@$(CPP) $(FLAGS) $(OBJS) -o $(NAME)
 	@echo "                                                         "
 	@echo " \033[1;32m  ___|   _ \    \  |   _ \ _ _|  |      ____|  __ \   | "
@@ -20,14 +19,11 @@ $(NAME): $(OBJ_PATH) $(OBJS)
 	@echo " \____| \___/  _|  _| _|    ___| _____| _____| ____/  _) \033[0m"
 	@echo "                                                         "
 
-$(OBJ_PATH)%.o: %.cpp
-	@$(CPP) $(FLAGS) -c $< -o $@
-
-$(OBJ_PATH):
-	@mkdir -p $(OBJ_PATH)
+%.o: %.cpp
+	$(CPP) $(FLAGS) -c $< -o $@
 
 clean:
-	@rm -rf $(OBJ_PATH)
+	@rm -rf $(OBJS)
 	@echo "\033[1;32m.o files removed!\033[0m"
 
 fclean: clean

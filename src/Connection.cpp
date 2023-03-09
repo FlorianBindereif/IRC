@@ -1,9 +1,9 @@
-#include "Connection.hpp"
+#include "../inc/Connection.hpp"
 #include <unistd.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
-#include "../config.hpp"
-#include "Server.hpp"
+#include "../inc/config.hpp"
+#include "../inc/Server.hpp"
 
 namespace irc
 {
