@@ -2,6 +2,7 @@
 #define CONNECTION_HPP
 
 #include "Socket.hpp"
+#include "Buffer.hpp"
 #include "../inc/config.hpp"
 #include <string>
 #include <unistd.h>
@@ -25,13 +26,16 @@ namespace irc
 			bool			GetStatus() const;
 			void			CloseConnection();
 		public:
-			virtual void	Receive() {};
-			virtual void	Send() {};
+			virtual void	Receive() = 0;
+			virtual void	Send() = 0;
 	};
 
 	class ClientConnection: public Connection
 	{
 		private:
+
+			Buffer	buffer_;
+
 			struct UserData
 			{
 				std::string	user_name;

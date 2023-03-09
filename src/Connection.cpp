@@ -70,11 +70,24 @@ namespace irc
 		try
 		{	int new_fd = Accept();
 			Server::AddConnection(new ClientConnection(new_fd));
+			std::cout << "NEW CLIENT RECEIVED" << "\n";
 		}
 		catch(const std::exception& error)
 		{
 			std::cerr << error.what() << '\n';
 		}
+	}
+
+	void ClientConnection::Receive()
+	{
+		char buffer[512];
+		ssize_t received;
+
+		received = recv(GetFd(), buffer, sizeof(buffer), 0);
+		if (received == -1)
+			return ;
+		buffer_.Append(buffer);
+		std::cout << "input received: " << buffer << std::endl;
 	}
 
 	void ServerConnection::Send() {}
@@ -85,5 +98,4 @@ namespace irc
 
 	void ClientConnection::Send() {}
 
-	void ClientConnection::Receive(){};
 }
