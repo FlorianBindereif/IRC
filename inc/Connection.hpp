@@ -36,14 +36,22 @@ namespace irc
 
 			Buffer	buffer_;
 
+			//wird status_ ersetzen
+			enum State
+			{
+				HANDSHAKE,
+				LOGIN,
+				REGISTERED,
+				DISCONNECTED
+			};
+
 			struct UserData
 			{
 				std::string	user_name;
 				std::string	real_name;
 				std::string	nick_name;
 				std::string	password;
-				bool		op;
-			} user_data_;
+ 			} user_data_;
 
 		public:
 							ClientConnection();

@@ -95,7 +95,7 @@ namespace irc
 	{
 		if (command.length() > MESSAGE_LENGTH) {;}
 			//Error Handling
-		std::cout << "EXECUTING COMMAND: " << command << "\n"; 
+		std::cout << "EXECUTING COMMAND: " << command << "\n";
 	}
 
 	void ServerConnection::Send() {}

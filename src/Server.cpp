@@ -5,6 +5,7 @@ namespace irc
 	std::vector<Connection *> Server::connections_;
 	std::map<std::string, Connection *> Server::nicks_;
 	std::vector<pollfd> Server::polls_;
+	std::map<std::string, Channel> Server::channels_;
 
 	Server::Server()
 	{ 
@@ -50,10 +51,10 @@ namespace irc
 			if (polls_[i].revents & POLL_OUT)
 				connections_[i]->Send();
 		}
-		CleanUp();
+		CleanUp_();
 	}
 
-	void Server::CleanUp()
+	void Server::CleanUp_()
 	{
 		//delete aus usermap noch notwendig
 		size_type i = 0;
@@ -62,6 +63,7 @@ namespace irc
 			if (connections_[i]->GetStatus() == false)
 			{
 				std::cout << "USER: " << connections_[i]->GetFd() << " DISCONNECTED" << "\n";
+				delete connections_[i];
 				connections_.erase(connections_.begin() + i);
 				polls_.erase(polls_.begin() + i);
 				continue;
@@ -76,4 +78,7 @@ namespace irc
 		pollfd client_poll = {.revents = 0, .events = POLLEVENTS, .fd = new_connection->GetFd()};
 		Server::polls_.push_back(client_poll);
 	}
+
+	void Server::AddChannel(std::string name)
+	{ Server::channels_.insert(std::make_pair(name, Channel(name))); }
 }
