@@ -80,14 +80,22 @@ namespace irc
 
 	void ClientConnection::Receive()
 	{
-		char buffer[512];
+		char buffer[MESSAGE_LENGTH];
 		ssize_t received;
 
 		received = recv(GetFd(), buffer, sizeof(buffer), 0);
 		if (received <= 0)
 			return ;
 		buffer_.Append(buffer, 0 , received);
-		std::cout << ">>" << buffer_.GetCommand() << "<<" << "\n";
+		if (buffer_.HoldsCommand())
+		{ ExecuteCommand(buffer_.GetCommand()); }
+	}
+
+	void ClientConnection::ExecuteCommand(std::string command)
+	{
+		if (command.length() > MESSAGE_LENGTH) {;}
+			//Error Handling
+		std::cout << "EXECUTING COMMAND: " << command << "\n"; 
 	}
 
 	void ServerConnection::Send() {}
@@ -97,5 +105,4 @@ namespace irc
 	ClientConnection::~ClientConnection() { }
 
 	void ClientConnection::Send() {}
-
 }

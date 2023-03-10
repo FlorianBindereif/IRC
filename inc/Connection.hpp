@@ -46,27 +46,29 @@ namespace irc
 			} user_data_;
 
 		public:
-					ClientConnection();
-					ClientConnection(int fd);
-			virtual ~ClientConnection();
+							ClientConnection();
+							ClientConnection(int fd);
+			virtual 		~ClientConnection();
 		public:
-			void 	Receive();
-			void 	Send();
+			void 			Receive();
+			void 			Send();
+		public:
+			void			ExecuteCommand(std::string command);
 	};
 
 	class ServerConnection: public Connection
 	{
 		public:
-					ServerConnection();
-			virtual ~ServerConnection();
+							ServerConnection();
+			virtual 		~ServerConnection();
 		public:
-			void 	Bind(int port);
-			void 	Listen();
-			void 	SetOptions();
-			int		Accept();
+			void 			Receive();
+			void 			Send();
 		public:
-			void 	Receive();
-			void 	Send();
+			void 			Bind(int port);
+			void 			Listen();
+			void 			SetOptions();
+			int				Accept();
 	};
 }
 

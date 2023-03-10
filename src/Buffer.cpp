@@ -22,7 +22,7 @@ namespace irc
 
 	bool Buffer::HoldsCommand() const
 	{
-		if (buffer_.find("\r\n", 0) == std::string::npos)
+		if (buffer_.find("\r\n") == std::string::npos)
 			return false;
 		return true;
 	}

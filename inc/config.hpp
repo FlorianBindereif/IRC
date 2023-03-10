@@ -20,5 +20,6 @@ namespace IRC
 
 	//Pollevents to listen to
 	#define POLLEVENTS (POLLIN|POLLOUT|POLLERR|POLLHUP|POLLNVAL)
+
 }
 #endif
