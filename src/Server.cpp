@@ -35,9 +35,7 @@ namespace irc
 
 	void Server::Run()
 	{
-		int revent_count;
-		
-		revent_count = poll(polls_.data(), polls_.size(), 100);
+		int revent_count = poll(polls_.data(), polls_.size(), 100);
 		if (revent_count == -1)
 			return ;
 		for (size_type i = 0; i < polls_.size(); i++)

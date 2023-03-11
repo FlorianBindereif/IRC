@@ -87,14 +87,13 @@ namespace irc
 		if (received <= 0)
 			return ;
 		buffer_.Append(buffer, 0 , received);
-		if (buffer_.HoldsCommand())
+		while (buffer_.HoldsCommand())
 		{ ExecuteCommand(buffer_.GetCommand()); }
 	}
 
 	void ClientConnection::ExecuteCommand(std::string command)
 	{
-		if (command.length() > MESSAGE_LENGTH) {;}
-			//Error Handling
+		if (command.length() > MESSAGE_LENGTH) {}
 		std::cout << "EXECUTING COMMAND: " << command << "\n";
 	}
 
