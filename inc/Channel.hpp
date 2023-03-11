@@ -22,8 +22,10 @@ namespace irc
 			Channel(std::string name);
 		public:
 			void Broadcast(std::string& message) const;
-			void AddConnection(ClientConnection* to_join);
-			void RemoveConnection(ClientConnection* to_leave);
+			void AddConnection(ClientConnection* connection);
+			void RemoveConnection(ClientConnection* connection);
+			void GiveOperatorPermission(ClientConnection* connection);
+			void TakeOperatorPermission(ClientConnection* connection);
 	};
 }
 
