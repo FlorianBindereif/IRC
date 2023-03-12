@@ -33,10 +33,9 @@ namespace irc
 	class ClientConnection: public Connection
 	{
 		private:
-
 			Buffer	buffer_;
 
-			//wird status_ ersetzen
+		public:
 			enum State
 			{
 				HANDSHAKE,
@@ -44,15 +43,6 @@ namespace irc
 				REGISTERED,
 				DISCONNECTED
 			};
-
-			struct UserData
-			{
-				std::string	user_name;
-				std::string	real_name;
-				std::string	nick_name;
-				std::string	password;
- 			} user_data_;
-
 		public:
 							ClientConnection();
 							ClientConnection(int fd);

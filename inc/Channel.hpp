@@ -9,11 +9,12 @@ namespace irc
 {
 	class Channel
 	{
-		enum Permission
-		{
-			USER,
-			OPERATOR
-		};
+		private:
+			enum Permission
+			{
+				USER,
+				OPERATOR
+			};
 
 		private:
 			std::string 								name_;
