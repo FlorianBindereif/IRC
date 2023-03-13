@@ -9,7 +9,7 @@ namespace irc
 {	
 	struct Prefix
 	{
-		std::string nickname;
+		std::string name;
 		std::string user;
 		std::string host;
 	};
@@ -28,7 +28,6 @@ namespace irc
 	class MessageParser
 	{
 		private:
-			const int not_found = std::string::npos;
 			typedef std::string::size_type size_type;
 		private:
 			std::string input_;
@@ -43,4 +42,4 @@ namespace irc
 	};
 }
 
-#endif PARSER_HPP
+#endif
