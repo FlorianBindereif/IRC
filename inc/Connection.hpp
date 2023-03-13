@@ -10,6 +10,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+
 namespace irc
 {
 	class Connection
@@ -30,19 +31,28 @@ namespace irc
 			virtual void	Send() = 0;
 	};
 
+	class Message;
+
 	class ClientConnection: public Connection
 	{
 		private:
-			Buffer	buffer_;
-
+			Buffer	input_buffer_;
+			Buffer	output_buffer_;
 		public:
-			enum State
+			enum ConnectionState
 			{
 				HANDSHAKE,
 				LOGIN,
 				REGISTERED,
 				DISCONNECTED
-			};
+			} state;
+
+			struct UserData
+			{
+				std::string nick;
+				std::string username;
+			} user;
+
 		public:
 							ClientConnection();
 							ClientConnection(int fd);
@@ -52,6 +62,8 @@ namespace irc
 			void 			Send();
 		public:
 			void			ExecuteCommand(std::string command);
+			void 			SendCapabilities(Message& message);
+			void 			SetUsername(Message& message);
 	};
 
 	class ServerConnection: public Connection

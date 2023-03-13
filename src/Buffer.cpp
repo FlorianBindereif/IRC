@@ -7,6 +7,10 @@ void Buffer::Append(char *content, size_t subpos, size_t sublen) {
   buffer_.append(content, subpos, sublen);
 }
 
+void Buffer::Append(std::string content) {
+  buffer_.append(content);
+}
+
 bool Buffer::Empty() const { return buffer_.empty(); }
 
 void Buffer::Clear() { return buffer_.clear(); }
@@ -22,6 +26,13 @@ bool Buffer::HoldsCommand() const {
 std::string Buffer::GetCommand() {
   int cr = buffer_.find("\r\n");
   std::string command = buffer_.substr(0, cr);
+  buffer_.erase(0, cr + 2);
+  return command;
+}
+
+std::string Buffer::GetCommandCR() {
+  int cr = buffer_.find("\r\n");
+  std::string command = buffer_.substr(0, cr + 2);
   buffer_.erase(0, cr + 2);
   return command;
 }

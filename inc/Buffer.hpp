@@ -15,11 +15,13 @@ namespace irc
 			Buffer();
 		public:
 			void				Append(char *content, size_t subpos, size_t sublen);
+			void 				Append(std::string content);
 			bool				Empty() const;
 			void				Clear();
 			const char* 		C_str() const;
 			bool 				HoldsCommand() const;
 			std::string 		GetCommand();
+			std::string 		GetCommandCR();
 			const std::string& 	GetBuffer() const;
 	};
 	

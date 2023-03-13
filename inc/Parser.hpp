@@ -30,15 +30,15 @@ namespace irc
 		private:
 			typedef std::string::size_type size_type;
 		private:
-			std::string input_;
+			static std::string to_parse_;
 		public:
 			MessageParser();
 		private:
-			void ParsePrefix_(Prefix& prefix);
-			void ParseCommand_(std::string& command);
-			void ParseParams_(std::vector<std::string>& params, std::string& trailing);
+			static void ParsePrefix_(Prefix& prefix);
+			static void ParseCommand_(std::string& command);
+			static void ParseParams_(std::vector<std::string>& params, std::string& trailing);
 		public: 
-			Message Parse(std::string &input);
+			static Message Parse(std::string &to_parse);
 	};
 }
 

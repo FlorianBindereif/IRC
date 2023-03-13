@@ -1,4 +1,5 @@
 #include "../inc/Server.hpp"
+#include "../inc/Print.hpp"
 
 namespace irc
 {
@@ -60,7 +61,7 @@ namespace irc
 		{
 			if (connections_[i]->GetStatus() == false)
 			{
-				std::cout << "USER: " << connections_[i]->GetFd() << " DISCONNECTED" << "\n";
+				std::cout << GREEN << "USER" << connections_[i]->GetFd() << "DISCONNECTED" << RESET << "\n";
 				delete connections_[i];
 				connections_.erase(connections_.begin() + i);
 				polls_.erase(polls_.begin() + i);

@@ -1,5 +1,9 @@
 #include "../inc/Connection.hpp"
+#include "../inc/Parser.hpp"
 #include "../inc/Server.hpp"
+#include "../inc/Print.hpp"
+
+#include <iostream>
 
 namespace irc
 {
@@ -70,7 +74,7 @@ namespace irc
 		try
 		{	int new_fd = Accept();
 			Server::AddConnection(new ClientConnection(new_fd));
-			std::cout << "NEW CLIENT RECEIVED" << "\n";
+			PRINTNL("NEW CONNECTION RECEIVED", GREEN);
 		}
 		catch(const std::exception& error)
 		{
@@ -86,15 +90,34 @@ namespace irc
 		received = recv(GetFd(), buffer, sizeof(buffer), 0);
 		if (received <= 0)
 			return ;
-		buffer_.Append(buffer, 0 , received);
-		while (buffer_.HoldsCommand())
-		{ ExecuteCommand(buffer_.GetCommand()); }
+		input_buffer_.Append(buffer, 0 , received);
+		while (input_buffer_.HoldsCommand())
+		{ ExecuteCommand(input_buffer_.GetCommand()); }
 	}
 
 	void ClientConnection::ExecuteCommand(std::string command)
 	{
+		Message message;
+		//parser still needs error management
 		if (command.length() > MESSAGE_LENGTH) {}
-		std::cout << "EXECUTING COMMAND: " << command << "\n";
+		message = MessageParser::Parse(command);
+		std::cout << message << std::endl;
+		if (message.command == "CAP")
+			SendCapabilities(message);
+		else if (message.command == "NICK")
+			SetUsername(message);
+	}
+
+	void ClientConnection::SendCapabilities(Message& message)
+	{ 
+		(void) message;
+		//möglicherweise noch zu implementieren
+	}
+
+	void ClientConnection::SetUsername(Message& message)
+	{
+		user.username = message.middle_params[0];
+		// if (state == )
 	}
 
 	void ServerConnection::Send() {}
@@ -103,5 +126,14 @@ namespace irc
 
 	ClientConnection::~ClientConnection() { }
 
-	void ClientConnection::Send() {}
+	void ClientConnection::Send()
+	{
+		if (output_buffer_.Empty())
+			return ;
+		while(output_buffer_.HoldsCommand())
+		{
+			std::string output = output_buffer_.GetCommandCR();
+			send(GetFd(), output.data(), output.size(), 0);
+		}
+	}
 }
