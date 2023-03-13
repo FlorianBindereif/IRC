@@ -19,7 +19,8 @@ namespace irc
 		public:
 			Prefix						prefix;
 			std::string					command;
-			std::vector<std::string>	params;
+			std::vector<std::string>	middle_params;
+			std::string					trailing;
 
 		friend	std::ostream& operator<<(std::ostream& os, const Message& message);
 	};
@@ -36,7 +37,7 @@ namespace irc
 		private:
 			void ParsePrefix_(Prefix& prefix);
 			void ParseCommand_(std::string& command);
-			void ParseParams_(std::vector<std::string>& params);
+			void ParseParams_(std::vector<std::string>& params, std::string& trailing);
 		public: 
 			Message Parse(std::string &input);
 	};

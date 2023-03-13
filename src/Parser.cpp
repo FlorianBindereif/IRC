@@ -1,16 +1,16 @@
 #include "../inc/Parser.hpp"
+#include <sstream>
 
 namespace irc
 {
-
 	Message MessageParser::Parse(std::string &input)
 	{
 		Message message;
 
 		input_ = input;
 		ParsePrefix_(message.prefix);
-		ParseCommand_(message.command);\
-		ParseParams_(message.params);
+		ParseCommand_(message.command);
+		ParseParams_(message.middle_params, message.trailing);
 	}
 
 	void MessageParser::ParsePrefix_(Prefix& prefix)
@@ -57,7 +57,21 @@ namespace irc
 			command = input_;
 	}
 
-	void ParseParams_(std::vector<std::string>& params)
+	void MessageParser::ParseParams_(std::vector<std::string>& params, std::string& trailing)
 	{
+		std::istringstream iss(input_);
+		std::string token;
+
+		while(iss >> token)
+		{
+			if (token.front() == ':')
+			{
+				trailing.append(token.substr(1));
+				while(iss >> token)
+					trailing.append(" " + token);
+				break;
+			}
+			params.push_back(token);
+		}
 	}
 }
