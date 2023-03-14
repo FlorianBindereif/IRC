@@ -78,7 +78,6 @@ namespace irc
 	/* Adds a new Client Connection to the Server */
 	void ServerConnection::Receive()
 	{
-		std::cout << "check" << std::endl;
 		try
 		{
 			int new_fd = Accept();
@@ -96,7 +95,6 @@ namespace irc
 		char buffer[MESSAGE_LENGTH];
 		ssize_t received;
 
-		std::cout << "check" << std::endl;
 		received = recv(GetFd(), buffer, sizeof(buffer), 0);
 		if (received <= 0)
 			return ;
@@ -114,13 +112,15 @@ namespace irc
 		message = MessageParser::Parse(command);
 		
 		std::cout << message << std::endl;
-		if (state == CONNECTED)
-		{
-			if (message.command == "PASS")
-				return Authenticate(message);
-		}
+		// if (state == CONNECTED)
+		// {
+		// 	if (message.command == "PASS")
+		// 		return Authenticate(message);
+		// }
+		if (message.command = "PASS")
+			return Authenticate(message);
 		if (message.command == "CAP")
-			SendCapabilities(message);
+			return SendCapabilities(message);
 		if (message.command == "NICK")
 			return SetNickname(message);
 		if (message.command == "USER")
