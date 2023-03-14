@@ -9,7 +9,14 @@ LDFLAGS     :=
 LDLIBS      :=
 
 VPATH       := src/
-SRCS        := main.cpp Connection.cpp Server.cpp Socket.cpp Buffer.cpp Channel.cpp Parser.cpp
+SRCS        := 	main.cpp \
+				Connection.cpp \
+				Server.cpp \
+				Socket.cpp \
+				Buffer.cpp \
+				Channel.cpp \
+				Parser.cpp \
+				ServerResponse.cpp
 
 ODIR        := obj
 OBJS        := $(SRCS:%.cpp=$(ODIR)/%.o)

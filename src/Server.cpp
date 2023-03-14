@@ -4,9 +4,10 @@
 namespace irc
 {
 	std::vector<Connection *> Server::connections_;
-	std::map<std::string, Connection *> Server::nicks_;
+	std::map<std::string, ClientConnection *> Server::nicks_;
 	std::vector<pollfd> Server::polls_;
 	std::map<std::string, Channel> Server::channels_;
+	std::string Server::server_password_;
 
 	Server::Server()
 	{ 
@@ -31,7 +32,7 @@ namespace irc
 		pollfd server_poll = {.revents = 0, .events = POLLEVENTS, .fd = server_con->GetFd()};
 		polls_.push_back(server_poll);
 
-		password_ = password;
+		server_password_ = password;
 	}
 
 	void Server::Run()
@@ -55,11 +56,12 @@ namespace irc
 
 	void Server::CleanUp_()
 	{
-		//delete aus usermap noch notwendig
 		size_type i = 0;
+
+		//delete aus usermap noch notwendig. Man muss wahrscheinlich casten.
 		while (i < connections_.size())
 		{
-			if (connections_[i]->GetStatus() == false)
+			if (connections_[i]->GetStatus() == DISCONNECTED)
 			{
 				std::cout << GREEN << "USER" << connections_[i]->GetFd() << "DISCONNECTED" << RESET << "\n";
 				delete connections_[i];
@@ -80,4 +82,16 @@ namespace irc
 
 	void Server::AddChannel(std::string name)
 	{ Server::channels_.insert(std::make_pair(name, Channel(name))); }
+
+	bool Server::AuthenticatePassword(std::string& password)
+	{ return server_password_ == password ? true : false; }
+
+	bool Server::CheckNickAvailability(std::string nick)
+	{ return Server::nicks_.find(nick) == nicks_.end() ? true : false; }
+
+	ClientConnection* Server::GetConnection(std::string nick)
+	{
+		nick_iter find = nicks_.find(nick);
+		return nicks_.find(nick) == nicks_.end() ? nullptr :find->second;
+	}
 }

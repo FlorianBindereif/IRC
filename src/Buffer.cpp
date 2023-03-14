@@ -19,22 +19,22 @@ const char *Buffer::C_str() const { return buffer_.c_str(); }
 
 const std::string &Buffer::GetBuffer() const { return buffer_; }
 
-bool Buffer::HoldsCommand() const {
+bool Buffer::HoldsMessage() const {
   return buffer_.find("\r\n") == buffer_.npos ? false : true;
 }
 
-std::string Buffer::GetCommand() {
+std::string Buffer::GetMessage() {
   int cr = buffer_.find("\r\n");
-  std::string command = buffer_.substr(0, cr);
+  std::string message = buffer_.substr(0, cr);
   buffer_.erase(0, cr + 2);
-  return command;
+  return message;
 }
 
-std::string Buffer::GetCommandCR() {
+std::string Buffer::GetMessageCR() {
   int cr = buffer_.find("\r\n");
-  std::string command = buffer_.substr(0, cr + 2);
+  std::string message = buffer_.substr(0, cr + 2);
   buffer_.erase(0, cr + 2);
-  return command;
+  return message;
 }
 
 std::ostream &operator<<(std::ostream &os, const Buffer &obj) {

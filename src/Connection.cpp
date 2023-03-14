@@ -2,14 +2,21 @@
 #include "../inc/Parser.hpp"
 #include "../inc/Server.hpp"
 #include "../inc/Print.hpp"
+#include "../inc/ServerReponse.hpp"
+#include "../inc/config.hpp"
 
 #include <iostream>
+#include <string>
+#include <unistd.h>
+#include <iostream>
+#include <netinet/in.h>
+#include <arpa/inet.h>
 
 namespace irc
 {
-	Connection::Connection(): socket_(), status_(true) { }
+	Connection::Connection(): socket_(), state(CONNECTED) {}
 
-	Connection::Connection(int fd): socket_(fd), status_(true)	{ }
+	Connection::Connection(int fd): socket_(fd), state(CONNECTED){ }
 	
 	Connection::~Connection() {}
 
@@ -17,10 +24,10 @@ namespace irc
 	{ return socket_.GetFd(); }
 
 	void Connection::CloseConnection()
-	{ status_ = false ;}
+	{ state = DISCONNECTED ;}
 
-	bool Connection::GetStatus() const
-	{ return status_; }
+	ConnectionState& Connection::GetStatus()
+	{ return state; }
 
 	/* Sets Socket into listening mode for @BACKLOG elements in queue */
 	void ServerConnection::Listen()
@@ -71,8 +78,10 @@ namespace irc
 	/* Adds a new Client Connection to the Server */
 	void ServerConnection::Receive()
 	{
+		std::cout << "check" << std::endl;
 		try
-		{	int new_fd = Accept();
+		{
+			int new_fd = Accept();
 			Server::AddConnection(new ClientConnection(new_fd));
 			PRINTNL("NEW CONNECTION RECEIVED", GREEN);
 		}
@@ -87,37 +96,73 @@ namespace irc
 		char buffer[MESSAGE_LENGTH];
 		ssize_t received;
 
+		std::cout << "check" << std::endl;
 		received = recv(GetFd(), buffer, sizeof(buffer), 0);
 		if (received <= 0)
 			return ;
 		input_buffer_.Append(buffer, 0 , received);
-		while (input_buffer_.HoldsCommand())
-		{ ExecuteCommand(input_buffer_.GetCommand()); }
+		while (input_buffer_.HoldsMessage())
+		{ ExecuteMessage(input_buffer_.GetMessage()); }
 	}
 
-	void ClientConnection::ExecuteCommand(std::string command)
+	void ClientConnection::ExecuteMessage(std::string command)
 	{
 		Message message;
 		//parser still needs error management
-		if (command.length() > MESSAGE_LENGTH) {}
+
+		// if (command.length() > MESSAGE_LENGTH) {}
 		message = MessageParser::Parse(command);
+		
 		std::cout << message << std::endl;
+		if (state == CONNECTED)
+		{
+			if (message.command == "PASS")
+				return Authenticate(message);
+		}
 		if (message.command == "CAP")
 			SendCapabilities(message);
-		else if (message.command == "NICK")
-			SetUsername(message);
+		if (message.command == "NICK")
+			return SetNickname(message);
+		if (message.command == "USER")
+			return SetUsername(message);
+		// if (state == AUTHENTICATED)
+		// {
+		// 	if (message.command == "JOIN")
+		// 		return ConnectToChannel();
+		// 	if ()
+		// }
+	}
+	
+	void ClientConnection::Authenticate(Message& message)
+	{
+		if (Server::AuthenticatePassword(message.middle_params[0]))
+		{
+			state = AUTHENTICATED;
+			PRINTNL("NEW USER AUTHENTICATED", GREEN);
+		}
+		else
+			output_buffer_.Append(ERR_PASSWDMISMATCH());
+
 	}
 
 	void ClientConnection::SendCapabilities(Message& message)
 	{ 
+		PRINTNL("CAPABILITIES SENT", GREEN);
 		(void) message;
-		//möglicherweise noch zu implementieren
 	}
 
 	void ClientConnection::SetUsername(Message& message)
 	{
 		user.username = message.middle_params[0];
-		// if (state == )
+		std::cout << GREEN << "USERNAME SET: " << user.username << "\n";
+	}
+
+	void ClientConnection::SetNickname(Message& message)
+	{
+		if (Server::CheckNickAvailability(message.middle_params[0]))
+		{
+			user.nick = message.middle_params[0];
+		}
 	}
 
 	void ServerConnection::Send() {}
@@ -130,9 +175,9 @@ namespace irc
 	{
 		if (output_buffer_.Empty())
 			return ;
-		while(output_buffer_.HoldsCommand())
+		while(output_buffer_.HoldsMessage())
 		{
-			std::string output = output_buffer_.GetCommandCR();
+			std::string output = output_buffer_.GetMessageCR();
 			send(GetFd(), output.data(), output.size(), 0);
 		}
 	}

@@ -19,9 +19,9 @@ namespace irc
 			bool				Empty() const;
 			void				Clear();
 			const char* 		C_str() const;
-			bool 				HoldsCommand() const;
-			std::string 		GetCommand();
-			std::string 		GetCommandCR();
+			bool 				HoldsMessage() const;
+			std::string 		GetMessage();
+			std::string 		GetMessageCR();
 			const std::string& 	GetBuffer() const;
 	};
 	

@@ -3,6 +3,9 @@
 
 namespace IRC
 {
+	//Names the Server for response-generation
+	#define SERVERNAME "idiotic.chat"
+	
 	//Number of pending connections the serverque will hold 
 	#define BACKLOG	128
 
@@ -10,10 +13,10 @@ namespace IRC
 	#define MESSAGE_LENGTH 512
 
 	//IP the Server will be listening to
-	#define IP	"0.0.0.0"
+	#define IP "0.0.0.0"
 
 	//Password required Client to connect to the Server
-	#define PASSWORD "IRC42"
+	#define PASSWORD "pwd"
 
 	//Default Port the Server will bind to
 	#define PORT 6060
