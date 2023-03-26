@@ -105,19 +105,16 @@ namespace irc
 
 	void ClientConnection::ExecuteMessage(std::string command)
 	{
-		Message message;
 		//parser still needs error management
-
 		// if (command.length() > MESSAGE_LENGTH) {}
+		Message message;
+
 		message = MessageParser::Parse(command);
-		
 		std::cout << message << std::endl;
-		// if (state == CONNECTED)
-		// {
-		// 	if (message.command == "PASS")
-		// 		return Authenticate(message);
-		// }
-		if (message.command = "PASS")
+
+		if (state == DISCONNECTED)
+			return ;
+		if (message.command == "PASS")
 			return Authenticate(message);
 		if (message.command == "CAP")
 			return SendCapabilities(message);
@@ -125,6 +122,10 @@ namespace irc
 			return SetNickname(message);
 		if (message.command == "USER")
 			return SetUsername(message);
+		// else if (state == REGISTERED)
+		// {
+
+		// }
 		// if (state == AUTHENTICATED)
 		// {
 		// 	if (message.command == "JOIN")
@@ -135,14 +136,26 @@ namespace irc
 	
 	void ClientConnection::Authenticate(Message& message)
 	{
-		if (Server::AuthenticatePassword(message.middle_params[0]))
+		if (state == AUTHENTICATED || state == REGISTERED)
 		{
-			state = AUTHENTICATED;
+			PRINTNL("USER TRIED TO RE-AUTHENTICATE", RED);
+			output_buffer_.Append(ERR_ALREADYREGISTRED());
+		}
+		else if (message.middle_params[0].empty())
+		{
+			PRINTNL("USER SENT EMPTY PASSWORD", RED);
+			output_buffer_.Append(ERR_NEEDMOREPARAMS());
+		}
+		else if (Server::AuthenticatePassword(message.middle_params[0]))
+		{
 			PRINTNL("NEW USER AUTHENTICATED", GREEN);
+			state = AUTHENTICATED;
 		}
 		else
+		{
+			PRINTNL("USER PROVIDED INVALID PASSWORD", RED);
 			output_buffer_.Append(ERR_PASSWDMISMATCH());
-
+		}
 	}
 
 	void ClientConnection::SendCapabilities(Message& message)
@@ -153,15 +166,53 @@ namespace irc
 
 	void ClientConnection::SetUsername(Message& message)
 	{
-		user.username = message.middle_params[0];
-		std::cout << GREEN << "USERNAME SET: " << user.username << "\n";
+		if (state == CONNECTED)
+		{
+			PRINTNL("USER PROVIDED INVALID PASSWORD", RED);
+			output_buffer_.Append(ERR_PASSWDMISMATCH());
+		}
+		else if (message.middle_params.size() != 3 && message.trailing.size() != 1)
+		{
+			PRINTNL("USER SENT EMPTY USERNAME", RED);
+			output_buffer_.Append(ERR_NEEDMOREPARAMS());
+		}
+		else if (!user.username.empty())
+		{
+			PRINTNL("USER TRIED RESETTING USERNAME", RED);
+			output_buffer_.Append((ERR_ALREADYREGISTRED()));
+		}
+		else
+		{
+			user.username = message.trailing;
+			std::cout << GREEN << "USERNAME SET: " << user.username << "\n";
+			if (!user.nick.empty())
+				state = REGISTERED;
+		}
 	}
 
 	void ClientConnection::SetNickname(Message& message)
 	{
-		if (Server::CheckNickAvailability(message.middle_params[0]))
+		if (state == CONNECTED)
 		{
+			PRINTNL("USER PROVIDED INVALID PASSWORD", RED);
+			output_buffer_.Append(ERR_PASSWDMISMATCH());
+		}
+		else if (message.middle_params[0].empty())
+		{
+			PRINTNL("USER SENT EMPTY NICK", RED);
+			output_buffer_.Append(ERR_NONICKNAMEGIVEN());
+		}
+		else if (Server::CheckNickAvailability(message.middle_params[0]))
+		{
+			std::cout << GREEN << "NICKNAME " << message.middle_params[0] << " SET" << RESET << "\n";
 			user.nick = message.middle_params[0];
+			if (!user.username.empty())
+				state = REGISTERED;
+		}
+		else
+		{
+			output_buffer_.Append(ERR_NICKNAMEINUSE(message.middle_params[0]));
+			PRINTNL("USER TRIED SETTING NICK ALREADY IN USE", RED);
 		}
 	}
 

@@ -1,12 +1,11 @@
 #include "../inc/ServerReponse.hpp"
 #include "../inc/config.hpp"
 
-std::string ERR_PASSWDMISMATCH()
-{
-	std::string message;
-	return message + ":" + SERVERNAME + " 464 " + "PASS" + " :Password incorrect\r\n";
-}
-
+std::string ERR_PASSWDMISMATCH() { return std::string(":") + SERVERNAME + " 464 " + "PASS" + " :Password incorrect\r\n";}
+std::string ERR_NEEDMOREPARAMS() { return std::string(":") + SERVERNAME + " 461 " + "PASS" + " :Not enough parameters\r\n";}
+std::string ERR_ALREADYREGISTRED() { return std::string(":") + SERVERNAME + " 462 " ":Already registered in\r\n";}
+std::string ERR_NICKNAMEINUSE(std::string& nick) { return std::string(":") + SERVERNAME " 433 " + nick + " :Nickname is already in use\r\n"; }
+std::string ERR_NONICKNAMEGIVEN() { return std::string(":") + SERVERNAME + " 431 " + "NICK" + " :Nickname not given\r\n"; }
 
 // #include <iostream>
 // #include <string>
