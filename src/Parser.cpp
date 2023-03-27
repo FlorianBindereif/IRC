@@ -84,11 +84,13 @@ namespace irc
 
 	std::ostream& operator<<(std::ostream& os, const Message& message)
 	{
-		os << "PREFIX:" << "\n";
-		os << "nick:\t\t" << message.prefix.name << "\n";
-		os << "user:\t\t" << message.prefix.user << "\n";
-		os << "host:\t\t" << message.prefix.host << "\n";
-		os << "\n";
+		//Am Ende wieder einkommentieren
+
+		// os << "PREFIX:" << "\n";
+		// os << "nick:\t\t" << message.prefix.name << "\n";
+		// os << "user:\t\t" << message.prefix.user << "\n";
+		// os << "host:\t\t" << message.prefix.host << "\n";
+		// os << "\n";
 		os << "COMMAND:\t" << message.command << "\n";
 		os << "PARAMETERS:\t";
 		for (size_t i = 0; i < message.middle_params.size(); i++)

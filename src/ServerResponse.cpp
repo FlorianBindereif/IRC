@@ -82,7 +82,6 @@ namespace irc
 // #define ERR_ERRONEUSNICKNAME(nick)						"432 " + nick + ":Erroneous nickname"
 // ​
 // #define ERR_UNKNOWNCOMMAND(source, command)				"421 " + source + " " + command + " :Unknown command"
-// #define ERR_NOTREGISTERED(source)						":" + source + " 451 " + ":You have not registered"
 // #define ERR_TOOMANYCHANNELS(source, channel)			"405 " + source + " " + channel + " :You have joined too many channels"
 // #define ERR_BADCHANNELKEY(source, channel)				"475 " + source + " " + channel + " :Cannot join channel (+k)"
 // #define ERR_NOSUCHNICK(source, nickname)				"401 " + source + " " + nickname + " :No such nick/channel"
@@ -91,7 +90,6 @@ namespace irc
 // ​
 // // NUMERIC REPLIES
 // #define RPL_PING(src, token)								":" + src + " PONG " + src + " :" + token + "\r\n"
-// #define	RPL_NICKCHANGE(nick, user, user_host, nw_nick)		":" + nick + "!" + user + "@" + user_host + " " + "NICK" + " :" + nw_nick + "\r\n"
 // #define RPL_JOIN(nick, user, user_host, channel)			":" + nick + "!" + user + "@" + user_host + " JOIN " + channel + " * :" + user + "\r\n"
 // #define	RPL_TOPIC(src, nick, channel, topic)				":" + src + " 332 " + nick + " " + channel + " :" + topic + "\r\n"
 // #define RPL_NOTOPIC(src, nick, channel)						":" + src + " 331 " + nick + " " + channel + " :No topic is set\r\n"

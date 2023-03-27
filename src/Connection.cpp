@@ -63,7 +63,6 @@ namespace irc
 			throw std::runtime_error("setsockopt(fd, SOL_SOCKET, ...) returned ERROR");
 	}
 
-
 	/* Accepts an incoming request for a new client Connection */
 	int	ServerConnection::Accept()
 	{
@@ -124,8 +123,13 @@ namespace irc
 			return SetUsername(message);
 		if (state < REGISTERED)
 			return output_buffer_.Append(ERR_NOTREGISTERED(message.command));
-		
-		
+		if (message.command == "JOIN")
+			return JoinChannel(message);
+	}
+
+	void ClientConnection::JoinChannel(Message& message)
+	{
+		(void) message;
 	}
 	
 	void ClientConnection::Authenticate(Message& message)

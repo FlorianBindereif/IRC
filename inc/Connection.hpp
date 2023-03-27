@@ -59,6 +59,7 @@ namespace irc
 			void			Authenticate(Message& message);
 			void 			SetUsername(Message& message);
 			void 			SetNickname(Message& message);
+			void			JoinChannel(Message& message);
 	};
 
 	class ServerConnection: public Connection
