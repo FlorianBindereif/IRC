@@ -6,6 +6,9 @@ namespace IRC
 	//Names the Server for response-generation
 	#define SERVERNAME "idiotic.chat"
 	
+	//Names the Host for response-generation
+	#define HOST "localhost"
+
 	//Number of pending connections the serverque will hold 
 	#define BACKLOG	128
 

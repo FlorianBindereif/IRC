@@ -12,4 +12,7 @@ std::string ERR_ALREADYREGISTRED();
 std::string ERR_NICKNAMEINUSE(std::string& nick);
 std::string ERR_NONICKNAMEGIVEN();
 
+
+std::string RPL_CAP();
+std::string RPL_WELCOME(std::string& nick, std::string user);
 #endif

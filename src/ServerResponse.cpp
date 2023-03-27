@@ -1,11 +1,48 @@
 #include "../inc/ServerReponse.hpp"
 #include "../inc/config.hpp"
+#include "../inc/Print.hpp"
+#include <iostream>
 
-std::string ERR_PASSWDMISMATCH() { return std::string(":") + SERVERNAME + " 464 " + "PASS" + " :Password incorrect\r\n";}
-std::string ERR_NEEDMOREPARAMS() { return std::string(":") + SERVERNAME + " 461 " + "PASS" + " :Not enough parameters\r\n";}
-std::string ERR_ALREADYREGISTRED() { return std::string(":") + SERVERNAME + " 462 " ":Already registered in\r\n";}
-std::string ERR_NICKNAMEINUSE(std::string& nick) { return std::string(":") + SERVERNAME " 433 " + nick + " :Nickname is already in use\r\n"; }
-std::string ERR_NONICKNAMEGIVEN() { return std::string(":") + SERVERNAME + " 431 " + "NICK" + " :Nickname not given\r\n"; }
+std::string ERR_PASSWDMISMATCH()
+{ 
+	std::cout << RED << "User provided invalid password!" << RESET << "\n";
+	return std::string(":") + SERVERNAME + " 464 " + "PASS" + " :Password incorrect\r\n";
+}
+
+std::string ERR_NEEDMOREPARAMS() 
+{ 
+	std::cout << RED << "More Parameters needed to execute command!" << RESET << "\n";
+	return std::string(":") + SERVERNAME + " 461 " + "PASS" + " :Not enough parameters\r\n";
+}
+std::string ERR_ALREADYREGISTRED() 
+{ 
+	std::cout << RED << "User tried to re-authenticate!" << RESET << "\n";
+	return std::string(":") + SERVERNAME + " 462 " ":Already registered in\r\n";
+}
+std::string ERR_NICKNAMEINUSE(std::string& nick) 
+{ 
+	std::cout << RED << "User tried claiming username already in use!";
+	return std::string(":") + SERVERNAME " 433 " + nick + " :Nickname is already in use\r\n"; 
+}
+std::string ERR_NONICKNAMEGIVEN() 
+{ 
+	std::cout << RED << "User did not provide nickname!";
+	return std::string(":") + SERVERNAME + " 431 " + "NICK" + " :Nickname not given\r\n"; 
+}
+
+std::string RPL_CAP()
+{
+	std::cout << GREEN << "Server-capabilities were sent to client!" << RESET << "\n";
+	return std::string(":") + SERVERNAME + " CAP * LS :cap reply...\r\n"; 
+}
+
+std::string RPL_WELCOME(std::string& nick, std::string user) 
+{
+	std::cout << GREEN << "User: " << user << " succesfully registered to the server, using nick " << nick << "!"<< RESET << "\n";
+	return std::string(":") + SERVERNAME + " 001 " + nick + " :Welcome to the ft_irc network " + nick + "!" + user + "@" + HOST + "\r\n";
+}
+
+
 
 // #include <iostream>
 // #include <string>

@@ -46,10 +46,16 @@ namespace irc
 				continue;
 			if (polls_[i].revents & (POLLERR | POLLHUP | POLLNVAL))
 				connections_[i]->CloseConnection();
-			else if (polls_[i].revents & POLL_IN)
+			else if (polls_[i].revents & POLLIN)
+			{
+				// std::cout << BLUE << "IN" << RESET << std::cout;
 				connections_[i]->Receive();
-			if (polls_[i].revents & POLL_OUT)
+			}
+			if (polls_[i].revents & POLLOUT)
+			{
+				// std::cout << BLUE << "OUT" << i << RESET << std::cout;
 				connections_[i]->Send();
+			}
 		}
 		CleanUp_();
 	}
@@ -69,6 +75,7 @@ namespace irc
 				polls_.erase(polls_.begin() + i);
 				continue;
 			}
+			polls_[i].revents = 0;
 			i++;
 		}
 	}
