@@ -3,46 +3,62 @@
 #include "../inc/Print.hpp"
 #include <iostream>
 
-std::string ERR_PASSWDMISMATCH()
-{ 
-	std::cout << RED << "User provided invalid password!" << RESET << "\n";
-	return std::string(":") + SERVERNAME + " 464 " + "PASS" + " :Password incorrect\r\n";
-}
-
-std::string ERR_NEEDMOREPARAMS() 
-{ 
-	std::cout << RED << "More Parameters needed to execute command!" << RESET << "\n";
-	return std::string(":") + SERVERNAME + " 461 " + "PASS" + " :Not enough parameters\r\n";
-}
-std::string ERR_ALREADYREGISTRED() 
-{ 
-	std::cout << RED << "User tried to re-authenticate!" << RESET << "\n";
-	return std::string(":") + SERVERNAME + " 462 " ":Already registered in\r\n";
-}
-std::string ERR_NICKNAMEINUSE(std::string& nick) 
-{ 
-	std::cout << RED << "User tried claiming username already in use!";
-	return std::string(":") + SERVERNAME " 433 " + nick + " :Nickname is already in use\r\n"; 
-}
-std::string ERR_NONICKNAMEGIVEN() 
-{ 
-	std::cout << RED << "User did not provide nickname!";
-	return std::string(":") + SERVERNAME + " 431 " + "NICK" + " :Nickname not given\r\n"; 
-}
-
-std::string RPL_CAP()
+namespace irc
 {
-	std::cout << GREEN << "Server-capabilities were sent to client!" << RESET << "\n";
-	return std::string(":") + SERVERNAME + " CAP * LS :cap reply...\r\n"; 
+	std::string ERR_PASSWDMISMATCH()
+	{ 
+		std::cout << RED << "User provided invalid password!" << RESET << "\n";
+		return std::string(":") + SERVERNAME + " 464 " + "PASS" + " :Password incorrect\r\n";
+	}
+
+	std::string ERR_NEEDMOREPARAMS(std::string& command) 
+	{ 
+		std::cout << RED << command << ": more Parameters needed to execute command: " << command << RESET << "\n";
+		return std::string(":") + SERVERNAME + " 461 " + command + " :Not enough parameters\r\n";
+	}
+	std::string ERR_ALREADYREGISTRED() 
+	{ 
+		std::cout << RED << "User tried to re-authenticate!" << RESET << "\n";
+		return std::string(":") + SERVERNAME + " 462 " ":Already registered in\r\n";
+	}
+	std::string ERR_NICKNAMEINUSE(std::string& nick) 
+	{ 
+		std::cout << RED << "User tried claiming nickname already in use!" << RESET << "\n";
+		return std::string(":") + SERVERNAME " 433 " + nick + " :Nickname is already in use\r\n"; 
+	}
+
+	std::string ERR_NONICKNAMEGIVEN() 
+	{ 
+		std::cout << RED << "User did not provide nickname!" << RESET << "\n";
+		return std::string(":") + SERVERNAME + " 431 " + "NICK" + " :Nickname not given\r\n"; 
+	}
+
+	std::string RPL_NICKCHANGE(std::string& old_nick, std::string& new_nick, std::string& user) 
+	{ 
+		std::cout << GREEN << "User changed his nickname from " << old_nick << " to " << new_nick << "!" << RESET << "\n";
+		return std::string(":") + old_nick + "!" + user + "@" + HOST + " " + "NICK" + " :" + new_nick + "\r\n";
+	}
+
+	std::string RPL_CAP()
+	{
+		std::cout << GREEN << "Server-capabilities were sent to client!" << RESET << "\n";
+		return std::string(":") + SERVERNAME + " CAP * LS :cap reply...\r\n"; 
+	}
+
+	std::string RPL_WELCOME(std::string& nick, std::string user) 
+	{
+		std::cout << GREEN << "User: " << user << " succesfully registered to the server, using nick " << nick << "!" << RESET << "\n";
+		return std::string(":") + SERVERNAME + " 001 " + nick + " :Welcome to the ft_irc network " + nick + "!" + user + "@" + HOST + "\r\n";
+	}
+
+	std::string ERR_NOTREGISTERED(std::string& command)
+	{		
+		std::cout << RED << "User tried executing command " << command << " but was not registred" << RESET << "\n";
+		return std::string(":") + SERVERNAME + " 451 " + ":You have not registered\r\n";
+	}
+
+
 }
-
-std::string RPL_WELCOME(std::string& nick, std::string user) 
-{
-	std::cout << GREEN << "User: " << user << " succesfully registered to the server, using nick " << nick << "!"<< RESET << "\n";
-	return std::string(":") + SERVERNAME + " 001 " + nick + " :Welcome to the ft_irc network " + nick + "!" + user + "@" + HOST + "\r\n";
-}
-
-
 
 // #include <iostream>
 // #include <string>
@@ -54,12 +70,7 @@ std::string RPL_WELCOME(std::string& nick, std::string user)
 // ​
 // //ERROR REPLIES
 // #define ERR_ALREADYLOGEDIN(source)						":" + source + " 460 " ":Already logged in\r\n"
-// #define ERR_ALREADYREGISTRED(source)					":" + source + " 462 " ":Already registered in\r\n"
-// #define ERR_NEEDMOREPARAMS(source, command)				":" + source + " 461 " + command + " :Not enough parameters\r\n"  //!!
-// #define ERR_PASSWDMISMATCH(source)						":" + source + " 464 " + "PASS" + " :Password incorrect\r\n"
-// #define ERR_NONICKNAMEGIVEN(source)						":" + source + " 431 " + "NICK" + " :Nickname not given\r\n"	//!!
 // ​
-// #define ERR_NICKNAMEINUSE(src, nick, used)				":" + src + " 433 " + nick + " " + used + " :Nickname is already in use\r\n"
 // #define ERR_NOSUCHCHANNEL(src, nick, channel)			":" + src + " 403 " +  nick + " " + channel + " :No such channel\r\n"
 // #define ERR_NOTONCHANNEL(src, nick, channel)			":" + src + " 401 " + nick + " " + channel + " :No such nick/channel\r\n"
 // #define ERR_CANNOTSENDTOCHAN(src, nick, channel)		":" + src +  " 404 " + nick + " " + channel + " :Cannot send to channel\r\n"
@@ -79,9 +90,7 @@ std::string RPL_WELCOME(std::string& nick, std::string user)
 // #define ERR_CHANNELISFULL(source, channel)				"471 " + source + " " + channel + " :Cannot join channel (+l)"
 // ​
 // // NUMERIC REPLIES
-// #define	RPL_CAP(src)										":" + src + " CAP * LS :cap reply...\r\n"
 // #define RPL_PING(src, token)								":" + src + " PONG " + src + " :" + token + "\r\n"
-// #define RPL_WELCOME(src, nick, user, host)					":" + src + " 001 " + nick + " :Welcome to the ft_irc network " + nick + "!" + user + "@" + host + "\r\n"
 // #define	RPL_NICKCHANGE(nick, user, user_host, nw_nick)		":" + nick + "!" + user + "@" + user_host + " " + "NICK" + " :" + nw_nick + "\r\n"
 // #define RPL_JOIN(nick, user, user_host, channel)			":" + nick + "!" + user + "@" + user_host + " JOIN " + channel + " * :" + user + "\r\n"
 // #define	RPL_TOPIC(src, nick, channel, topic)				":" + src + " 332 " + nick + " " + channel + " :" + topic + "\r\n"

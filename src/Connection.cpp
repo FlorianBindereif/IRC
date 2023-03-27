@@ -85,9 +85,7 @@ namespace irc
 			PRINTNL("NEW CONNECTION RECEIVED", GREEN);
 		}
 		catch(const std::exception& error)
-		{
-			std::cerr << error.what() << '\n';
-		}
+		{ std::cerr << error.what() << '\n'; }
 	}
 
 	void ClientConnection::Receive()
@@ -118,30 +116,29 @@ namespace irc
 			return Authenticate(message);
 		if (message.command == "CAP")
 			return SendCapabilities(message);
+		if (state < AUTHENTICATED)
+			return output_buffer_.Append(ERR_NOTREGISTERED(message.command));
 		if (message.command == "NICK")
 			return SetNickname(message);
 		if (message.command == "USER")
 			return SetUsername(message);
-		// else if (state == REGISTERED)
-		// {
-
-		// }
-		// if (state == AUTHENTICATED)
-		// {
-		// 	if (message.command == "JOIN")
-		// 		return ConnectToChannel();
-		// 	if ()
-		// }
+		if (state < REGISTERED)
+			return output_buffer_.Append(ERR_NOTREGISTERED(message.command));
+		
+		
 	}
 	
 	void ClientConnection::Authenticate(Message& message)
 	{
 		if (state == AUTHENTICATED || state == REGISTERED)
 			output_buffer_.Append(ERR_ALREADYREGISTRED());
-		else if (message.middle_params[0].empty())
-			output_buffer_.Append(ERR_NEEDMOREPARAMS());
+		if (message.middle_params[0].empty())
+			output_buffer_.Append(ERR_NEEDMOREPARAMS(message.command));
 		else if (Server::AuthenticatePassword(message.middle_params[0]))
+		{
+			PRINTNL("New user authenticated", GREEN);
 			state = AUTHENTICATED;
+		}
 		else
 			output_buffer_.Append(ERR_PASSWDMISMATCH());
 	}
@@ -154,16 +151,14 @@ namespace irc
 
 	void ClientConnection::SetUsername(Message& message)
 	{
-		if (state == CONNECTED)
-			output_buffer_.Append(ERR_PASSWDMISMATCH());
-		else if (message.middle_params.size() != 3 && message.trailing.size() != 1)
-			output_buffer_.Append(ERR_NEEDMOREPARAMS());
+		if (message.middle_params.size() != 3 && message.trailing.size() != 1)
+			output_buffer_.Append(ERR_NEEDMOREPARAMS(message.command));
 		else if (!user.username.empty())
 			output_buffer_.Append((ERR_ALREADYREGISTRED()));
 		else
 		{
 			user.username = message.trailing;
-			if (!user.nick.empty())
+			if (state < REGISTERED && !user.nick.empty())
 			{
 				state = REGISTERED;
 				output_buffer_.Append(RPL_WELCOME(user.nick, user.username));
@@ -171,24 +166,26 @@ namespace irc
 		}
 	}
 
+	//need to either change nick in map too or do not use usermap
 	void ClientConnection::SetNickname(Message& message)
 	{
-		if (state == CONNECTED)
-			output_buffer_.Append(ERR_PASSWDMISMATCH());
-		else if (message.middle_params[0].empty())
+		if (message.middle_params[0].empty())
 			output_buffer_.Append(ERR_NONICKNAMEGIVEN());
 		else if (Server::CheckNickAvailability(message.middle_params[0]))
 		{
-			user.nick = message.middle_params[0];
-			if (!user.username.empty())
+			if (state == REGISTERED)
+				output_buffer_.Append(RPL_NICKCHANGE(user.nick, message.middle_params[0], user.username));
+			else if (state < REGISTERED && !user.username.empty())
 			{
 				state = REGISTERED;
-				output_buffer_.Append(RPL_WELCOME(user.nick, user.username));
+				output_buffer_.Append(RPL_WELCOME(message.middle_params[0], user.username));
 			}
+			user.nick = message.middle_params[0];
 		}
 		else
 			output_buffer_.Append(ERR_NICKNAMEINUSE(message.middle_params[0]));
 	}
+
 
 	void ServerConnection::Send() {}
 

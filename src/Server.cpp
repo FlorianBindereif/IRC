@@ -47,15 +47,9 @@ namespace irc
 			if (polls_[i].revents & (POLLERR | POLLHUP | POLLNVAL))
 				connections_[i]->CloseConnection();
 			else if (polls_[i].revents & POLLIN)
-			{
-				// std::cout << BLUE << "IN" << RESET << std::cout;
 				connections_[i]->Receive();
-			}
 			if (polls_[i].revents & POLLOUT)
-			{
-				// std::cout << BLUE << "OUT" << i << RESET << std::cout;
 				connections_[i]->Send();
-			}
 		}
 		CleanUp_();
 	}
@@ -87,6 +81,7 @@ namespace irc
 		Server::polls_.push_back(client_poll);
 	}
 
+	//check if name is not already in use
 	void Server::AddChannel(std::string name)
 	{ Server::channels_.insert(std::make_pair(name, Channel(name))); }
 

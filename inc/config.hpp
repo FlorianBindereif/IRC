@@ -1,7 +1,7 @@
 #ifndef CONFIG_HPP
 #define CONFIG_HPP
 
-namespace IRC
+namespace irc
 {
 	//Names the Server for response-generation
 	#define SERVERNAME "idiotic.chat"
