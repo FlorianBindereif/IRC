@@ -4,7 +4,6 @@
 namespace irc
 {
 	std::vector<Connection *> Server::connections_;
-	std::map<std::string, ClientConnection *> Server::nicks_;
 	std::vector<pollfd> Server::polls_;
 	std::map<std::string, Channel> Server::channels_;
 	std::string Server::server_password_;
@@ -63,7 +62,7 @@ namespace irc
 		{
 			if (connections_[i]->GetStatus() == DISCONNECTED)
 			{
-				std::cout << GREEN << "USER" << connections_[i]->GetFd() << "DISCONNECTED" << RESET << "\n";
+				std::cout << GREEN << "User " << connections_[i]->GetFd() << " disconnected" << RESET << "\n";
 				delete connections_[i];
 				connections_.erase(connections_.begin() + i);
 				polls_.erase(polls_.begin() + i);
@@ -81,19 +80,38 @@ namespace irc
 		Server::polls_.push_back(client_poll);
 	}
 
-	//check if name is not already in use
-	void Server::AddChannel(std::string name)
-	{ Server::channels_.insert(std::make_pair(name, Channel(name))); }
+	void Server::AddChannel(std::string& channel_name)
+	{ 
+		std::pair<std::string, Channel> pair = std::make_pair(channel_name, Channel(channel_name));
+		channels_.insert(pair);
+	}
+
+	Channel* Server::GetChannel(std::string& channel_name)
+	{
+		chan_iter find = channels_.find(channel_name);
+		return find == channels_.end() ? nullptr : &(find->second);
+	}
 
 	bool Server::AuthenticatePassword(std::string& password)
 	{ return server_password_ == password ? true : false; }
 
-	bool Server::CheckNickAvailability(std::string nick)
-	{ return Server::nicks_.find(nick) == nicks_.end() ? true : false; }
-
-	ClientConnection* Server::GetConnection(std::string nick)
+	bool Server::CheckNickAvailability(std::string& nick)
 	{
-		nick_iter find = nicks_.find(nick);
-		return nicks_.find(nick) == nicks_.end() ? nullptr :find->second;
+		for (conn_iter it = connections_.begin(); it != connections_.end(); it++)
+		{
+			if ((*it)->user.nick == nick)
+				return false;
+		}
+		return true;
+	}
+
+	ClientConnection* Server::GetConnection(std::string& nick)
+	{
+		for (conn_iter it = connections_.begin(); it != connections_.end(); it++)
+		{
+			if ((*it)->user.nick == nick)
+				return dynamic_cast<ClientConnection *>(*it);
+		}
+		return nullptr;
 	}
 }

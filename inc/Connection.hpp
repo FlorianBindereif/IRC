@@ -6,7 +6,6 @@
 
 namespace irc
 {
-
 	enum ConnectionState
 	{
 		DISCONNECTED,
@@ -20,6 +19,12 @@ namespace irc
 		protected:
 			Socket			socket_;
 			ConnectionState	state;
+		public:
+			struct UserData
+			{
+				std::string nick;
+				std::string username;
+			} user;
 		public:
 								Connection();
 								Connection(int fd);
@@ -40,12 +45,6 @@ namespace irc
 		private:
 			Buffer	input_buffer_;
 			Buffer	output_buffer_;
-		public:
-			struct UserData
-			{
-				std::string nick;
-				std::string username;
-			} user;
 		public:
 							ClientConnection();
 							ClientConnection(int fd);

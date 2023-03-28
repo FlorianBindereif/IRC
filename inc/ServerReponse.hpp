@@ -14,6 +14,9 @@ namespace irc
 	std::string ERR_NICKNAMEINUSE(std::string& nick);
 	std::string ERR_NONICKNAMEGIVEN();
 	std::string ERR_NOTREGISTERED(std::string& command);
+	std::string ERR_NOSUCHCHANNEL(std::string& nick, std::string& channel_name);
+	std::string ERR_BADCHANNELFORMAT(std::string& nick, std::string& channel_name);
+	std::string RPL_JOIN(std::string& nick, std::string& user, std::string& channel_name);
 
 
 	std::string RPL_CAP();

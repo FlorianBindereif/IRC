@@ -11,6 +11,7 @@
 #include <iostream>
 #include <netinet/in.h>
 #include <arpa/inet.h>
+#include <sstream>
 
 namespace irc
 {
@@ -129,14 +130,34 @@ namespace irc
 
 	void ClientConnection::JoinChannel(Message& message)
 	{
-		(void) message;
+		if (message.middle_params.empty())
+			output_buffer_.Append(ERR_NEEDMOREPARAMS(message.command));
+		std::istringstream iss(message.middle_params[0]);
+		std::string channel_name;
+		while(getline(iss, channel_name, ','))
+		{
+			if (channel_name.front() != '#')
+				output_buffer_.Append(ERR_BADCHANNELFORMAT(user.nick, channel_name));
+			else
+			{
+				Channel* channel = Server::GetChannel(channel_name);
+				std::cout << "before" << channel << std::endl;
+				if (channel == nullptr)
+					Server::AddChannel(channel_name);
+				channel = Server::GetChannel(channel_name);
+				std::cout << "after" << channel << std::endl;
+				channel->AddConnection(this);
+				output_buffer_.Append(RPL_JOIN(user.nick, user.username, channel_name));
+				//speichern in welchen channeln der user ist;
+			}
+		}
 	}
 	
 	void ClientConnection::Authenticate(Message& message)
 	{
 		if (state == AUTHENTICATED || state == REGISTERED)
 			output_buffer_.Append(ERR_ALREADYREGISTRED());
-		if (message.middle_params[0].empty())
+		else if (message.middle_params[0].empty())
 			output_buffer_.Append(ERR_NEEDMOREPARAMS(message.command));
 		else if (Server::AuthenticatePassword(message.middle_params[0]))
 		{
@@ -189,7 +210,6 @@ namespace irc
 		else
 			output_buffer_.Append(ERR_NICKNAMEINUSE(message.middle_params[0]));
 	}
-
 
 	void ServerConnection::Send() {}
 

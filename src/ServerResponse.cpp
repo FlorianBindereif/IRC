@@ -13,7 +13,7 @@ namespace irc
 
 	std::string ERR_NEEDMOREPARAMS(std::string& command) 
 	{ 
-		std::cout << RED << command << ": more Parameters needed to execute command: " << command << RESET << "\n";
+		std::cout << RED << command << ": more Parameters needed to execute command: " << command << "!" << RESET << "\n";
 		return std::string(":") + SERVERNAME + " 461 " + command + " :Not enough parameters\r\n";
 	}
 	std::string ERR_ALREADYREGISTRED() 
@@ -53,9 +53,29 @@ namespace irc
 
 	std::string ERR_NOTREGISTERED(std::string& command)
 	{		
-		std::cout << RED << "User tried executing command " << command << " but was not registred" << RESET << "\n";
+		std::cout << RED << "User tried executing command " << command << " but was not registred!" << RESET << "\n";
 		return std::string(":") + SERVERNAME + " 451 " + ":You have not registered\r\n";
 	}
+
+	std::string ERR_NOSUCHCHANNEL(std::string& nick, std::string& channel_name)
+	{
+		std::cout << RED << "User tried accessing channel " << channel_name << ", but it did not exist!" << RESET << "\n";
+		return std::string(":") + SERVERNAME + " 403 " +  nick + " " + channel_name + " : No such channel\r\n";
+	}
+
+	std::string ERR_BADCHANNELFORMAT(std::string& nick, std::string& channel_name)
+	{
+		std::cout << RED << "User tried joining channel " << channel_name << ", but did not state proper format!" << RESET << "\n";
+		return std::string(":") + SERVERNAME + " 403 " +  nick + " " + channel_name + " : Bad channel format\r\n";
+	}
+
+	std::string RPL_JOIN(std::string& nick, std::string& user, std::string& channel_name)
+	{
+		std::cout << GREEN << nick << " joined channel " << channel_name << "!" << RESET << "\n";
+		return std::string(":") + nick + "!" + user + "@" + HOST + " JOIN " + channel_name + " * :" + user + "\r\n";
+	}
+
+// #define RPL_JOIN(nick, user, user_host, channel)			":" + nick + "!" + user + "@" + user_host + " JOIN " + channel + " * :" + user + "\r\n"
 
 
 }
@@ -71,7 +91,6 @@ namespace irc
 // //ERROR REPLIES
 // #define ERR_ALREADYLOGEDIN(source)						":" + source + " 460 " ":Already logged in\r\n"
 // ​
-// #define ERR_NOSUCHCHANNEL(src, nick, channel)			":" + src + " 403 " +  nick + " " + channel + " :No such channel\r\n"
 // #define ERR_NOTONCHANNEL(src, nick, channel)			":" + src + " 401 " + nick + " " + channel + " :No such nick/channel\r\n"
 // #define ERR_CANNOTSENDTOCHAN(src, nick, channel)		":" + src +  " 404 " + nick + " " + channel + " :Cannot send to channel\r\n"
 // #define ERR_USERSDONTMATCH(src, nick)					":" + src +  " 502 " + nick + " :Cannot change mode for other users\r\n"
@@ -90,7 +109,6 @@ namespace irc
 // ​
 // // NUMERIC REPLIES
 // #define RPL_PING(src, token)								":" + src + " PONG " + src + " :" + token + "\r\n"
-// #define RPL_JOIN(nick, user, user_host, channel)			":" + nick + "!" + user + "@" + user_host + " JOIN " + channel + " * :" + user + "\r\n"
 // #define	RPL_TOPIC(src, nick, channel, topic)				":" + src + " 332 " + nick + " " + channel + " :" + topic + "\r\n"
 // #define RPL_NOTOPIC(src, nick, channel)						":" + src + " 331 " + nick + " " + channel + " :No topic is set\r\n"
 // #define	RPL_NAMREPLY(src, nick, channel)					":" + src + " 353 " + nick + " = " + channel + " :"

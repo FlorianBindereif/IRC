@@ -18,7 +18,7 @@ namespace irc
 
 		private:
 			std::string 								name_;
-			std::map<ClientConnection *, Permission>	connections_;
+			std::map<ClientConnection *, Permission>	registered_;
 		public:
 			Channel(std::string name);
 		public:
