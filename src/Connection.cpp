@@ -126,7 +126,12 @@ namespace irc
 			return output_buffer_.Append(ERR_NOTREGISTERED(message.command));
 		if (message.command == "JOIN")
 			return JoinChannel(message);
+		if (message.command == "PING")
+			return SendPong(message);
 	}
+
+	void ClientConnection::SendPong(Message& message)
+	{ output_buffer_.Append(RPL_PING(user.nick, message.middle_params[0]));	}
 
 	void ClientConnection::JoinChannel(Message& message)
 	{
@@ -192,6 +197,7 @@ namespace irc
 	{
 		if (message.middle_params[0].empty())
 			output_buffer_.Append(ERR_NONICKNAMEGIVEN());
+		
 		else if (Server::CheckNickAvailability(message.middle_params[0]))
 		{
 			if (state == REGISTERED)
@@ -204,7 +210,11 @@ namespace irc
 			user.nick = message.middle_params[0];
 		}
 		else
+		{
+			if (user.nick == message.middle_params[0])
+				return;
 			output_buffer_.Append(ERR_NICKNAMEINUSE(message.middle_params[0]));
+		}
 	}
 
 	void ServerConnection::Send() {}

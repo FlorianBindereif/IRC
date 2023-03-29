@@ -6,7 +6,7 @@
     E.g.
     RPL_TOPIC(src, nick, channel, topic)				":" + src + " 332 " + nick + " " + channel + " :" + topic + "\r\n"
 
--  hadle SendCapabilities or ignore but then delete -> L. 171 Server.cpp
+- hadle SendCapabilities or ignore but then delete -> L. 171 Server.cpp
 
 - main -> comments
 

@@ -75,11 +75,16 @@ namespace irc
 		return std::string(":") + nick + "!" + user + "@" + HOST + " JOIN " + channel_name + " * :" + user + "\r\n";
 	}
 
-// #define RPL_JOIN(nick, user, user_host, channel)			":" + nick + "!" + user + "@" + user_host + " JOIN " + channel + " * :" + user + "\r\n"
+	std::string RPL_PING(std::string& nick, std::string& token)
+	{
+		std::cout << GREEN << nick << " pinged this server! " << RESET << "\n";
+		return std::string(":") + SERVERNAME + " PONG " + SERVERNAME + " :" + token + "\r\n";
+	}
 
 
 }
 
+// #define RPL_PING(src, token)								":" + src + " PONG " + src + " :" + token + "\r\n"
 // #include <iostream>
 // #include <string>
 // #include <cstdlib>
