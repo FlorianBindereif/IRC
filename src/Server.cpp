@@ -80,10 +80,10 @@ namespace irc
 		Server::polls_.push_back(client_poll);
 	}
 
-	void Server::AddChannel(std::string& channel_name)
+	Channel* Server::AddChannel(std::string& channel_name)
 	{ 
 		std::pair<std::string, Channel> pair = std::make_pair(channel_name, Channel(channel_name));
-		channels_.insert(pair);
+		return &(channels_.insert(pair).first->second);
 	}
 
 	Channel* Server::GetChannel(std::string& channel_name)

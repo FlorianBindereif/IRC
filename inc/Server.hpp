@@ -38,7 +38,7 @@ namespace irc
 			static void					AddConnection(ClientConnection* new_connection);
 			static ClientConnection* 	GetConnection(std::string& nick);
 			static Channel* 			GetChannel(std::string& channel_name);
-			static void				AddChannel(std::string& channel_name);
+			static Channel*				AddChannel(std::string& channel_name);
 			static bool 				AuthenticatePassword(std::string& password);
 			static bool					CheckNickAvailability(std::string& nick);
 

@@ -141,11 +141,8 @@ namespace irc
 			else
 			{
 				Channel* channel = Server::GetChannel(channel_name);
-				std::cout << "before" << channel << std::endl;
 				if (channel == nullptr)
-					Server::AddChannel(channel_name);
-				channel = Server::GetChannel(channel_name);
-				std::cout << "after" << channel << std::endl;
+					channel = Server::AddChannel(channel_name);
 				channel->AddConnection(this);
 				output_buffer_.Append(RPL_JOIN(user.nick, user.username, channel_name));
 				//speichern in welchen channeln der user ist;
@@ -191,7 +188,6 @@ namespace irc
 		}
 	}
 
-	//need to either change nick in map too or do not use usermap
 	void ClientConnection::SetNickname(Message& message)
 	{
 		if (message.middle_params[0].empty())
