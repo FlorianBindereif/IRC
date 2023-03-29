@@ -1,5 +1,6 @@
 - Operator - kick,invite,(part,join)     @fbindere
 - User - part,join                       fbindere
+- direct messages
 
 - server sending message to weechat depending on executed command (key numbers on actions)
     E.g.
