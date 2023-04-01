@@ -2,6 +2,7 @@
 #define CHANNEL_HPP
 
 #include <string>
+#include <vector>
 #include <map>
 #include "Connection.hpp"
 
@@ -9,24 +10,33 @@ namespace irc
 {
 	class Channel
 	{
-		private:
+		public:
 			enum Permission
 			{
 				USER,
-				OPERATOR
+				OPERATOR,
+				NOTREGISTERED
 			};
 
 		private:
+			unsigned char								mode_;
 			std::string 								name_;
 			std::map<ClientConnection *, Permission>	registered_;
 		public:
 			Channel(std::string name);
 		public:
-			void Broadcast(std::string& message) const;
-			void AddConnection(ClientConnection* connection);
+			std::string GetName() const;
+			unsigned char GetMode() const;
+			std::string GetModeString() const;
+			void Broadcast(const std::string& message);
+			void AddConnection(ClientConnection* to_join, Permission permission);	
 			void RemoveConnection(ClientConnection* connection);
+			Permission GetPermissions(ClientConnection* connection);
 			void GiveOperatorPermission(ClientConnection* connection);
 			void TakeOperatorPermission(ClientConnection* connection);
+			void SetChannelMode(std::string mode);
+			void SetRegisteredMode(ClientConnection* target, std::string& mode);
+
 	};
 }
 

@@ -59,14 +59,8 @@ namespace irc
 
 	std::string ERR_NOSUCHCHANNEL(std::string& nick, std::string& channel_name)
 	{
-		std::cout << RED << "User tried accessing channel " << channel_name << ", but it did not exist!" << RESET << "\n";
+		std::cout << RED << "User tried accessing channel " << channel_name << " but it did not exist" << RESET << "\n";
 		return std::string(":") + SERVERNAME + " 403 " +  nick + " " + channel_name + " : No such channel\r\n";
-	}
-
-	std::string ERR_BADCHANNELFORMAT(std::string& nick, std::string& channel_name)
-	{
-		std::cout << RED << "User tried joining channel " << channel_name << ", but did not state proper format!" << RESET << "\n";
-		return std::string(":") + SERVERNAME + " 403 " +  nick + " " + channel_name + " : Bad channel format\r\n";
 	}
 
 	std::string RPL_JOIN(std::string& nick, std::string& user, std::string& channel_name)
@@ -81,8 +75,61 @@ namespace irc
 		return std::string(":") + SERVERNAME + " PONG " + SERVERNAME + " :" + token + "\r\n";
 	}
 
+	// std::string RPL_NAMREPLY(std::string& nick, std::string& channel_name)
+	// {
+	// 	//
+	// }	return std::string(":") + SERVERNAME + " 353 " + nick + " = " + channel + " :"
 
+	std::string ERR_USERSDONTMATCH(std::string& nick, std::string& target)
+	{
+		std::cout << RED << nick << "tried changing mode for " << target << "!" << RESET << "\n";
+		return std::string(":") + SERVERNAME + " 502 " + nick + " : Cannot change mode for other users\r\n";
+	}
+
+	std::string RPL_MODEUSER(std::string& nick, const std::string& mode)
+	{
+		std::cout << GREEN << nick << " set his mode to " << mode << RESET << "\n";
+		return std::string(":") + SERVERNAME + " 221 " + nick + " " + mode + "\r\n";
+	}
+
+	std::string ERR_UMODEUNKNOWNFLAG(std::string& nick)
+	{
+		std::cout << RED << nick << "used invalid mode flags" << RESET << "\n";
+		return std::string(":") + SERVERNAME + " 501 " + nick + " :Unknown MODE flags\r\n";
+	}
+
+	std::string RPL_CHANNELMODEIS(std::string& nick, std::string& channel_name, const std::string& mode)
+	{
+		std::cout << GREEN << nick << "requested " << channel_name << "'s mode: " << mode << RESET << "\n";
+		return std::string(":") + SERVERNAME + " 324 " + nick + " " + channel_name + " " + mode + "\r\n";
+	}
+
+	std::string RPL_SETMODECHANNEL(const std::string& nick, const std::string& channel_name, const std::string& mode)
+	{
+		std::cout << GREEN << nick << "set " << channel_name << "'s mode to " << mode << "!" << RESET << "\n";
+		return std::string(":") + SERVERNAME + " 324 " + nick + " " + channel_name + " " + mode + "\r\n";
+	}
+	
+	std::string ERR_NOSUCHNICK(std::string& nick)
+	{
+		std::cout << RED << "User tried using nick " << nick << " but it did not exist" << RESET << "\n";
+		return std::string("401 ") + SERVERNAME + " " + nick + " :No such nick/channel";
+	}
+
+	// #define ERR_NOSUCHNICK(source, nickname)				"401 " + source + " " + nickname + " :No such nick/channel"
+
+	// std::string RPL_SETMODECHANNEL(std::string& nick, std::string& user, std::string, std::string& channel_name, std::string& mode, std::string& nick)
+	// {
+	// 	return std::string(":") + ":" + nick + "!" + user + "@" + HOST + " MODE " + channel_name + " " + mode + " " + nick + "\r\n";
+	// }
+
+	std::string ERR_CHANOPRIVSNEEDED(std::string& nick, const std::string& channel_name)
+	{
+		std::cout << RED << nick << "tried changing mode for " << channel_name << " but did not have op permissions!" << RESET << "\n";
+		return std::string(":") + SERVERNAME + " 482 " + nick + " " + channel_name + " :You're not channel operator \r\n";
+	}			
 }
+
 
 // #define RPL_PING(src, token)								":" + src + " PONG " + src + " :" + token + "\r\n"
 // #include <iostream>
@@ -98,7 +145,6 @@ namespace irc
 // ​
 // #define ERR_NOTONCHANNEL(src, nick, channel)			":" + src + " 401 " + nick + " " + channel + " :No such nick/channel\r\n"
 // #define ERR_CANNOTSENDTOCHAN(src, nick, channel)		":" + src +  " 404 " + nick + " " + channel + " :Cannot send to channel\r\n"
-// #define ERR_USERSDONTMATCH(src, nick)					":" + src +  " 502 " + nick + " :Cannot change mode for other users\r\n"
 // #define	ERR_UMODEUNKNOWNFLAUSR(src, nick)				":" + src +  " 501 " + nick + " :Unknown MODE flags\r\n"
 // #define	ERR_UMODEUNKNOWNFLAGCH(src, nick)				":" + src +  " 472 " + nick + " :Unknown mode char to me\r\n"
 // #define ERR_CHANOPRIVSNEEDED(src, nick, channel)		":" + src +  " 482 " + nick + " " + channel + " :You're not channel operator \r\n"
@@ -127,7 +173,6 @@ namespace irc
 // #define RPL_TOPICCHANGE(src_nick, src_usr, src_host, channel, topic)":" + src_nick + "!" + src_usr + "@" + src_host + " TOPIC " + channel + " :" + topic + "\r\n"
 // ​
 // #define RPL_KICK(source, channel, target, reason)					":" + source + " KICK " + channel + " " + target + " :" + reason
-// #define RPL_MODEUSER(src, nick, mode)								":" + src + " 221 " + nick + " " + mode + "\r\n"
 // #define RPL_MODECHANNEL(src, nick,channel, mode)					":" + src + " 324 " + nick + " " + channel + " " + mode + "\r\n"
 // ​
 // std::vector<std::string>	ft_split(const char buffer[1000], std::string delim);

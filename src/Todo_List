@@ -15,3 +15,7 @@
 - Parser errorhandling commandlength > messagelength -> L.107 connection.cpp
 
 - Parser L.14 rmove comment when done
+
+hostname über getnameinfo holen.
+
+//output_buffer_ und input_buffer_ in public umbennen.

@@ -4,6 +4,8 @@
 #include "../inc/Print.hpp"
 #include "../inc/ServerReponse.hpp"
 #include "../inc/config.hpp"
+#include "../inc/Utils.hpp"
+#include "../inc/Channel.hpp"
 
 #include <iostream>
 #include <string>
@@ -128,7 +130,89 @@ namespace irc
 			return JoinChannel(message);
 		if (message.command == "PING")
 			return SendPong(message);
+		if (message.command == "MODE")
+			return SetMode(message);
 	}
+
+	std::string ClientConnection::GetModeString_() const
+	{
+		std::string mode("+");
+		if (mode_ & 0b01)
+			mode += "i";
+		if (mode_ & 0b10)
+			mode += "o";
+		return mode; 
+	}
+
+	void ClientConnection::SetClientMode_(Message& message)
+	{
+		ClientConnection *client = Server::GetConnection(message.middle_params[0]);
+		if (client == nullptr)
+			return output_buffer_.Append(ERR_NOSUCHCHANNEL(user.nick, message.middle_params[0]));
+		if (client->user.nick != user.nick)
+			return output_buffer_.Append(ERR_USERSDONTMATCH(user.nick, message.middle_params[0]));
+		if (message.middle_params.size() == 1)
+			return output_buffer_.Append(RPL_MODEUSER(user.nick, GetModeString_()));
+		std::string mode = CleanModeString_(message.middle_params[1], "io");
+		if (mode.empty())
+			return output_buffer_.Append(ERR_UMODEUNKNOWNFLAG(user.nick));
+		//noch nich fertig
+	}
+
+	void ClientConnection::SetChannelMode_(Message& message)
+	{
+		Channel* channel = Server::GetChannel(message.middle_params[0]);
+		if (channel == nullptr)
+			return output_buffer_.Append(ERR_NOSUCHCHANNEL(user.nick, message.middle_params[0]));
+		if (message.middle_params.size() == 1)
+			return output_buffer_.Append(RPL_CHANNELMODEIS(user.nick, message.middle_params[0], channel->GetModeString()));
+		if (channel->GetPermissions(this) != Channel::OPERATOR)
+			return output_buffer_.Append(ERR_CHANOPRIVSNEEDED(user.nick, channel->GetName()));
+		std::string mode;
+		if (message.middle_params.size() == 2)
+			mode = CleanModeString_(message.middle_params[1], "timb");
+		else
+			mode = CleanModeString_(message.middle_params[1], "o");
+		if (mode.empty())
+			return output_buffer_.Append(ERR_UMODEUNKNOWNFLAG(user.nick));	
+		if (message.middle_params.size() == 2)
+		{
+			channel->SetChannelMode(mode);
+			channel->Broadcast(RPL_SETMODECHANNEL(user.nick, channel->GetName(), mode));
+		}
+		else
+		{
+			ClientConnection* target = Server::GetConnection(message.middle_params[2]);
+			if (target == nullptr)
+				return output_buffer_.Append(ERR_NOSUCHNICK(message.middle_params[2]));
+			channel->SetRegisteredMode(target, mode);
+			channel->Broadcast//
+		}
+	}
+
+	std::string ClientConnection::CleanModeString_(std::string& mode, std::string flag_string)
+	{	
+		std::string cleaned;
+		std::string flags(flag_string);
+		for (std::string::iterator it = flags.begin(); it != flags.end(); it++)
+		{
+			std::string::size_type pos = mode.find_last_of(*it);
+			if (pos != std::string::npos && pos != 0)
+				cleaned.append(mode.substr(pos - 1, 2));
+		}
+		return cleaned;
+	}
+
+	void ClientConnection::SetMode(Message& message)
+	{
+		if (message.middle_params[0].empty())
+			return output_buffer_.Append(ERR_NEEDMOREPARAMS(message.command));
+		if (message.middle_params[0].front() == '#')
+			SetChannelMode_(message);
+		else
+			SetClientMode_(message);
+	}
+
 
 	void ClientConnection::SendPong(Message& message)
 	{ output_buffer_.Append(RPL_PING(user.nick, message.middle_params[0]));	}
@@ -136,19 +220,25 @@ namespace irc
 	void ClientConnection::JoinChannel(Message& message)
 	{
 		if (message.middle_params.empty())
-			output_buffer_.Append(ERR_NEEDMOREPARAMS(message.command));
+			return output_buffer_.Append(ERR_NEEDMOREPARAMS(message.command));
 		std::istringstream iss(message.middle_params[0]);
 		std::string channel_name;
 		while(getline(iss, channel_name, ','))
 		{
-			if (channel_name.front() != '#')
-				output_buffer_.Append(ERR_BADCHANNELFORMAT(user.nick, channel_name));
+			if (!ValidChannelName(channel_name))
+				output_buffer_.Append(ERR_NOSUCHCHANNEL(user.nick, channel_name));
 			else
 			{
 				Channel* channel = Server::GetChannel(channel_name);
 				if (channel == nullptr)
+				{
 					channel = Server::AddChannel(channel_name);
-				channel->AddConnection(this);
+					channel->AddConnection(this, Channel::OPERATOR);
+					output_buffer_.Append(RPL_JOIN(user.nick, user.username, channel_name));
+					//output_buffer_.Append()
+
+				}
+				// channel->AddConnection(this, );
 				output_buffer_.Append(RPL_JOIN(user.nick, user.username, channel_name));
 				//speichern in welchen channeln der user ist;
 			}
@@ -158,10 +248,10 @@ namespace irc
 	void ClientConnection::Authenticate(Message& message)
 	{
 		if (state == AUTHENTICATED || state == REGISTERED)
-			output_buffer_.Append(ERR_ALREADYREGISTRED());
-		else if (message.middle_params[0].empty())
-			output_buffer_.Append(ERR_NEEDMOREPARAMS(message.command));
-		else if (Server::AuthenticatePassword(message.middle_params[0]))
+			return output_buffer_.Append(ERR_ALREADYREGISTRED());
+		if (message.middle_params[0].empty())
+			return output_buffer_.Append(ERR_NEEDMOREPARAMS(message.command));
+		if (Server::AuthenticatePassword(message.middle_params[0]))
 		{
 			PRINTNL("New user authenticated", GREEN);
 			state = AUTHENTICATED;
@@ -179,26 +269,22 @@ namespace irc
 	void ClientConnection::SetUsername(Message& message)
 	{
 		if (message.middle_params.size() != 3 && message.trailing.size() != 1)
-			output_buffer_.Append(ERR_NEEDMOREPARAMS(message.command));
-		else if (!user.username.empty())
-			output_buffer_.Append((ERR_ALREADYREGISTRED()));
-		else
+			return output_buffer_.Append(ERR_NEEDMOREPARAMS(message.command));
+		if (state == REGISTERED)
+			return output_buffer_.Append((ERR_ALREADYREGISTRED()));
+		user.username = message.trailing;
+		if (state < REGISTERED && !user.nick.empty())
 		{
-			user.username = message.trailing;
-			if (state < REGISTERED && !user.nick.empty())
-			{
-				state = REGISTERED;
-				output_buffer_.Append(RPL_WELCOME(user.nick, user.username));
-			}
+			state = REGISTERED;
+			output_buffer_.Append(RPL_WELCOME(user.nick, user.username));
 		}
 	}
 
 	void ClientConnection::SetNickname(Message& message)
 	{
 		if (message.middle_params[0].empty())
-			output_buffer_.Append(ERR_NONICKNAMEGIVEN());
-		
-		else if (Server::CheckNickAvailability(message.middle_params[0]))
+			return output_buffer_.Append(ERR_NONICKNAMEGIVEN());
+		if (Server::CheckNickAvailability(message.middle_params[0]))
 		{
 			if (state == REGISTERED)
 				output_buffer_.Append(RPL_NICKCHANGE(user.nick, message.middle_params[0], user.username));
@@ -219,7 +305,7 @@ namespace irc
 
 	void ServerConnection::Send() {}
 
-	ClientConnection::ClientConnection(int fd): Connection(fd) { }
+	ClientConnection::ClientConnection(int fd): Connection(fd), mode_(0) { }
 
 	ClientConnection::~ClientConnection() { }
 

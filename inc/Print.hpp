@@ -10,7 +10,4 @@
 
 #define PRINTNL(message, colour) \
 	(std::cout << colour << message << RESET << "\n")
-#define PRINT(message, colour) \
-	(std::cout << colour << std::setw(20) << std::left << message << RESET)
-
 #endif

@@ -15,7 +15,16 @@ namespace irc
 	std::string ERR_NONICKNAMEGIVEN();
 	std::string ERR_NOTREGISTERED(std::string& command);
 	std::string ERR_NOSUCHCHANNEL(std::string& nick, std::string& channel_name);
-	std::string ERR_BADCHANNELFORMAT(std::string& nick, std::string& channel_name);
+	std::string ERR_USERSDONTMATCH(std::string& nick, std::string& target);
+	std::string RPL_MODEUSER(std::string& nick, const std::string& mode);
+	std::string ERR_UMODEUNKNOWNFLAG(std::string& nick);
+	std::string ERR_CHANOPRIVSNEEDED(std::string& nick, const std::string& channel_name);
+	std::string RPL_CHANNELMODEIS(std::string& nick, std::string& channel_name, const std::string& mode);
+	std::string RPL_SETMODECHANNEL(const std::string& nick, const std::string& channel_name, const std::string& mode);
+	std::string ERR_NOSUCHNICK(std::string& nick);
+
+
+
 
 
 	std::string RPL_CAP();

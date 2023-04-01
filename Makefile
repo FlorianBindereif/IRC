@@ -1,6 +1,6 @@
 NAME        := irc
 CXX         := c++
-CXXFLAGS    := -Wall -Wextra -Werror -std=c++98
+CXXFLAGS    := #-Wall -Wextra -Werror -std=c++98
 
 CPPFLAGS    :=
 DEPFLAGS     = -MT $@ -MMD -MP -MF $(DDIR)/$*.d
@@ -16,7 +16,8 @@ SRCS        := 	main.cpp \
 				Buffer.cpp \
 				Channel.cpp \
 				Parser.cpp \
-				ServerResponse.cpp
+				ServerResponse.cpp \
+				Utils.cpp
 
 ODIR        := obj
 OBJS        := $(SRCS:%.cpp=$(ODIR)/%.o)
