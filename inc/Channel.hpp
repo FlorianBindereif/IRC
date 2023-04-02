@@ -36,7 +36,7 @@ namespace irc
 			void TakeOperatorPermission(ClientConnection* connection);
 			void SetChannelMode(std::string mode);
 			void SetRegisteredMode(ClientConnection* target, std::string& mode);
-
+			std::string GetRegisteredString() const;
 	};
 }
 

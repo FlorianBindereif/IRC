@@ -45,8 +45,9 @@ namespace irc
 		private:
 			unsigned char 	mode_;
 		public:
-			Buffer			input_buffer_;
-			Buffer			output_buffer_;
+			Buffer						input_buffer_;
+			Buffer						output_buffer_;
+			std::vector<std::string>	channels_;
 		public:
 							ClientConnection();
 							ClientConnection(int fd);

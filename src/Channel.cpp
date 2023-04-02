@@ -77,6 +77,14 @@ namespace irc
 			TakeOperatorPermission(target);
 	}
 
+	std::string Channel::GetRegisteredString() const
+	{
+		for (std::map<ClientConnection *, Permission>::iterator it = registered_.begin(); it < registered_.end(); it++)
+		{
+			
+		}
+	}
+
 	unsigned char Channel::GetMode() const
 	{ return mode_; }
 

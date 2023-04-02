@@ -116,6 +116,12 @@ namespace irc
 		return std::string("401 ") + SERVERNAME + " " + nick + " :No such nick/channel";
 	}
 
+	std::string RPL_SETMODECLIENT(const std::string& nick, const std::string& user, const std::string& channel_name, const std::string& mode, const std::string& target)
+	{
+		std::cout << GREEN << nick << " adjusted the mode of " << target << " by " << mode << RESET << "\n";
+		return (":") + nick + "!" + user + "@" + HOST + " MODE " + channel_name + " " + mode + " " + target + "\r\n";
+	}
+
 	// #define ERR_NOSUCHNICK(source, nickname)				"401 " + source + " " + nickname + " :No such nick/channel"
 
 	// std::string RPL_SETMODECHANNEL(std::string& nick, std::string& user, std::string, std::string& channel_name, std::string& mode, std::string& nick)
@@ -127,7 +133,14 @@ namespace irc
 	{
 		std::cout << RED << nick << "tried changing mode for " << channel_name << " but did not have op permissions!" << RESET << "\n";
 		return std::string(":") + SERVERNAME + " 482 " + nick + " " + channel_name + " :You're not channel operator \r\n";
-	}			
+	}
+
+	std::string	RPL_NAMREPLY(const std::string& nick, const std::string& channel)
+	{
+		
+		return std::string(":") + SERVERNAME + " 353 " + nick + " = " + channel + " :"
+	}
+
 }
 
 
@@ -173,7 +186,6 @@ namespace irc
 // #define RPL_TOPICCHANGE(src_nick, src_usr, src_host, channel, topic)":" + src_nick + "!" + src_usr + "@" + src_host + " TOPIC " + channel + " :" + topic + "\r\n"
 // ​
 // #define RPL_KICK(source, channel, target, reason)					":" + source + " KICK " + channel + " " + target + " :" + reason
-// #define RPL_MODECHANNEL(src, nick,channel, mode)					":" + src + " 324 " + nick + " " + channel + " " + mode + "\r\n"
 // ​
 // std::vector<std::string>	ft_split(const char buffer[1000], std::string delim);
 // ​
