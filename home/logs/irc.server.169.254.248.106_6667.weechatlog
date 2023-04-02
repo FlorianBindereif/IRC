@@ -1,0 +1,9 @@
+2023-03-31 18:38:04	--	irc: connecting to server -password=pwd/6667...
+2023-03-31 18:38:04	=!=	irc: address "-password=pwd" not found
+2023-03-31 18:38:04	=!=	irc: error: nodename nor servname provided, or not known
+2023-03-31 18:38:04	--	irc: reconnecting to server in 10 seconds
+2023-03-31 18:38:14	--	irc: reconnecting to server...
+2023-03-31 18:38:14	--	irc: connecting to server -password=pwd/6667...
+2023-03-31 18:38:14	=!=	irc: address "-password=pwd" not found
+2023-03-31 18:38:14	=!=	irc: error: nodename nor servname provided, or not known
+2023-03-31 18:38:14	--	irc: reconnecting to server in 20 seconds

@@ -186,7 +186,7 @@ namespace irc
 			if (target == nullptr)
 				return output_buffer_.Append(ERR_NOSUCHNICK(message.middle_params[2]));
 			channel->SetRegisteredMode(target, mode);
-			channel->Broadcast//
+			channel->Broadcast()
 		}
 	}
 

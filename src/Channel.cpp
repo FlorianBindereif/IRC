@@ -72,9 +72,9 @@ namespace irc
 	void Channel::SetRegisteredMode(ClientConnection* target, std::string& mode)
 	{
 		if (mode.find_first_of("+o") != std::string::npos)
-		{
-			
-		}
+			GiveOperatorPermission(target);
+		else if (mode.find_first_of("-o") != std::string::npos)
+			TakeOperatorPermission(target);
 	}
 
 	unsigned char Channel::GetMode() const
