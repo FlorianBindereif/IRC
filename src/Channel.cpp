@@ -71,23 +71,10 @@ namespace irc
 
 	void Channel::SetRegisteredMode(ClientConnection* target, std::string& mode)
 	{
-		// for (unsigned long i = 0; i < mode.size(); i++)
-		// {
-		// 	if (mode[i] == '-')
-		// 		add = false;
-		// 	else if (mode[i] == '+')
-		// 		add = true;
-		// 	if (mode[i] == 'o' && add && !is_oper(target))
-		// 	{
-		// 		remove_client(target);
-		// 		add_oper(target);
-		// 	}
-		// 	if (mode[i] == 'o' && !add && is_oper(target))
-		// 	{
-		// 		remove_oper(target);
-		// 		add_client(target);
-		// 	}
-		// }
+		if (mode.find_first_of("+o") != std::string::npos)
+		{
+			
+		}
 	}
 
 	unsigned char Channel::GetMode() const
