@@ -136,7 +136,7 @@ namespace irc
 
 	std::string ERR_CHANOPRIVSNEEDED(std::string& nick, const std::string& channel_name)
 	{
-		std::cout << RED << nick << "tried changing mode for " << channel_name << " but did not have op permissions!" << RESET << "\n";
+		std::cout << RED << nick << " tried changing mode for " << channel_name << " but did not have op permissions!" << RESET << "\n";
 		return std::string(":") + SERVERNAME + " 482 " + nick + " " + channel_name + " :You're not channel operator \r\n";
 	}
 

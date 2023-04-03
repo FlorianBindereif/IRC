@@ -17,7 +17,6 @@ namespace irc
 				OPERATOR,
 				NOTREGISTERED
 			};
-
 		private:
 			unsigned char								mode_;
 			std::string 								name_;
@@ -36,7 +35,7 @@ namespace irc
 			void TakeOperatorPermission(ClientConnection* connection);
 			void SetChannelMode(std::string mode);
 			void SetRegisteredMode(ClientConnection* target, std::string& mode);
-			std::string GetRegisteredString();
+			std::string GetRegisteredString(bool include_invis = true);
 	};
 }
 

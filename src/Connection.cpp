@@ -156,6 +156,7 @@ namespace irc
 			std::string mode = CleanModeString_(message.middle_params[1], "io");
 			if (mode.empty())
 				return output_buffer_.Append(ERR_UMODEUNKNOWNFLAG(user.nick));
+			// hier stimmt was noch nicht.
 			if (mode.find_first_of("+o") != std::string::npos)
 				mode_ &= 0b10;
 			if (mode.find_first_of("-o") != std::string::npos)
@@ -181,7 +182,7 @@ namespace irc
 		if (message.middle_params.size() == 2)
 			mode = CleanModeString_(message.middle_params[1], "timb");
 		else
-			mode = CleanModeString_(message.middle_params[1], "o");
+			mode = CleanModeString_(message.middle_params[1], "io");
 		if (mode.empty())
 			return output_buffer_.Append(ERR_UMODEUNKNOWNFLAG(user.nick));	
 		if (message.middle_params.size() == 2)
@@ -222,7 +223,6 @@ namespace irc
 			SetClientMode_(message);
 	}
 
-
 	void ClientConnection::SendPong(Message& message)
 	{ output_buffer_.Append(RPL_PING(user.nick, message.middle_params[0]));	}
 
@@ -255,7 +255,42 @@ namespace irc
 			//topic muss dann heir noch hin;
 		}
 	}
-	
+
+	bool ClientConnection::IsInChannel_(const std::string& channel_name)
+	{
+		for (std::vector<std::string>::size_type i = 0; i < channel_list.size(); i++)
+		{
+			if (channel_list[i] == channel_name)
+				return true;
+		}
+		return false;
+	}
+
+	void ClientConnection::SendNames(Message& message)
+	{
+		if (message.middle_params.empty())
+			return output_buffer_.Append(ERR_NEEDMOREPARAMS(message.command));
+		std::istringstream iss(message.middle_params[0]);
+		std::string channel_name;
+		while(getline(iss, channel_name, ','))
+		{
+			Channel* channel = Server::GetChannel(channel_name);
+			if (channel == nullptr)
+			{
+				output_buffer_.Append(RPL_ENDOFNAMES(user.nick, channel_name));
+				continue;
+			}
+			std::string reply;
+			if (IsInChannel_(channel->GetName()))
+				reply = channel->GetRegisteredString();
+			else
+				reply = channel->GetRegisteredString(false);
+			if (!reply.empty())
+				output_buffer_.Append(RPL_NAMREPLY(user.nick, channel_name, reply));
+			output_buffer_.Append(RPL_ENDOFNAMES(user.nick, channel_name));
+		}
+	}
+
 	void ClientConnection::Authenticate(Message& message)
 	{
 		if (state == AUTHENTICATED || state == REGISTERED)
@@ -295,7 +330,6 @@ namespace irc
 		{
 			if (state == REGISTERED)
 			{
-				// müsste es jetzt für jeden channel kriegen
 				for (std::vector<std::string>::size_type i = 0; i < channel_list.size(); i++)
 				{
 					Channel* channel = Server::GetChannel(channel_list[i]);

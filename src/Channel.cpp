@@ -77,11 +77,13 @@ namespace irc
 			TakeOperatorPermission(target);
 	}
 
-	std::string Channel::GetRegisteredString()
+	std::string Channel::GetRegisteredString(bool include_invis)
 	{
 		std::string name_string;
 		for (std::map<ClientConnection *, Permission>::iterator it = registered_.begin(); it != registered_.end(); it++)
 		{
+			if (include_invis == false && ((*it).first->mode_ & 0b01))
+				continue;
 			if ((*it).second == OPERATOR)
 				name_string += "@";
 			name_string += (*it).first->user.nick + " ";

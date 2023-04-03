@@ -43,9 +43,8 @@ namespace irc
 
 	class ClientConnection: public Connection
 	{
-		private:
-			unsigned char 	mode_;
 		public:
+			unsigned char 				mode_;
 			Buffer						input_buffer_;
 			Buffer						output_buffer_;
 			std::vector<std::string>	channel_list;
@@ -58,6 +57,7 @@ namespace irc
 			void 			SetClientMode_(Message& message);
 			std::string		GetModeString_() const;
 			std::string 	CleanModeString_(std::string& mode, std::string flag_string);
+			bool 			IsInChannel_(const std::string& channel_name);
 		public:
 			void 			Receive();
 			void 			Send();
@@ -70,6 +70,8 @@ namespace irc
 			void			JoinChannel(Message& message);
 			void 			SendPong(Message& message);
 			void 			SetMode(Message& message);
+			void 			SendNames(Message& message);
+
 	};
 
 	class ServerConnection: public Connection
