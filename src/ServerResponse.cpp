@@ -75,11 +75,16 @@ namespace irc
 		return std::string(":") + SERVERNAME + " PONG " + SERVERNAME + " :" + token + "\r\n";
 	}
 
-	// std::string RPL_NAMREPLY(std::string& nick, std::string& channel_name)
-	// {
-	// 	//
-	// }	return std::string(":") + SERVERNAME + " 353 " + nick + " = " + channel + " :"
+	std::string RPL_NAMREPLY(const std::string& nick, const std::string& channel_name, const std::string& names_list)
+	{
+		return std::string(":") + SERVERNAME + " 353 " + nick + " = " + channel_name + " :" +  names_list + "\r\n";
+	}
 
+	std::string RPL_ENDOFNAMES(const std::string& nick, const std::string& channel_name)
+	{
+		std::cout << GREEN << nick << " requested client-list of channel " << channel_name  << "!"<< RESET << "\n";
+		return std::string(":")  + SERVERNAME + " 366 " + nick + " " + channel_name + " :END of NAMES list\r\n";
+	}
 	std::string ERR_USERSDONTMATCH(std::string& nick, std::string& target)
 	{
 		std::cout << RED << nick << "tried changing mode for " << target << "!" << RESET << "\n";
@@ -137,8 +142,7 @@ namespace irc
 
 	std::string	RPL_NAMREPLY(const std::string& nick, const std::string& channel)
 	{
-		
-		return std::string(":") + SERVERNAME + " 353 " + nick + " = " + channel + " :"
+		return std::string(":") + SERVERNAME + " 353 " + nick + " = " + channel + " :";
 	}
 
 }

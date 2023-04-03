@@ -3,6 +3,7 @@
 
 #include "Socket.hpp"
 #include "Buffer.hpp"
+#include <vector>
 
 namespace irc
 {
@@ -47,7 +48,7 @@ namespace irc
 		public:
 			Buffer						input_buffer_;
 			Buffer						output_buffer_;
-			std::vector<std::string>	channels_;
+			std::vector<std::string>	channel_list;
 		public:
 							ClientConnection();
 							ClientConnection(int fd);

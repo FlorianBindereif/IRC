@@ -243,14 +243,16 @@ namespace irc
 				{
 					channel = Server::AddChannel(channel_name);
 					channel->AddConnection(this, Channel::OPERATOR);
-					output_buffer_.Append(RPL_JOIN(user.nick, user.username, channel_name));
-					output_buffer_.Append(RPL_NAMREPLY
-
 				}
-				// channel->AddConnection(this, );
-				output_buffer_.Append(RPL_JOIN(user.nick, user.username, channel_name));
-				//speichern in welchen channeln der user ist;
+				else
+					channel->AddConnection(this, Channel::USER);
+				channel_list.push_back(channel->GetName());
+				channel->Broadcast(RPL_JOIN(user.nick, user.username, channel_name));
+				output_buffer_.Append(RPL_NAMREPLY(user.nick, channel->GetName(), channel->GetRegisteredString()));
+				output_buffer_.Append(RPL_ENDOFNAMES(user.nick, channel->GetName()));
 			}
+			//hier muss dan invite hin;
+			//topic muss dann heir noch hin;
 		}
 	}
 	
@@ -294,9 +296,9 @@ namespace irc
 			if (state == REGISTERED)
 			{
 				// müsste es jetzt für jeden channel kriegen
-				for (std::vector<std::string>::size_type i = 0; i < channels_.size(); i++)
+				for (std::vector<std::string>::size_type i = 0; i < channel_list.size(); i++)
 				{
-					Channel* channel = Server::GetChannel(channels_[i]);
+					Channel* channel = Server::GetChannel(channel_list[i]);
 					if (channel != nullptr)
 						channel->Broadcast(RPL_NICKCHANGE(user.nick, message.middle_params[0], user.username));
 				}

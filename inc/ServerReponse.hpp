@@ -22,18 +22,13 @@ namespace irc
 	std::string RPL_CHANNELMODEIS(std::string& nick, std::string& channel_name, const std::string& mode);
 	std::string RPL_SETMODECHANNEL(const std::string& nick, const std::string& channel_name, const std::string& mode);
 	std::string ERR_NOSUCHNICK(std::string& nick);
-
-
-
-
-
+	std::string RPL_NAMREPLY(const std::string& nick, const std::string& channel_name, const std::string& names_list);
+	std::string RPL_ENDOFNAMES(const std::string& nick, const std::string& channel_name);
 	std::string RPL_CAP();
 	std::string RPL_WELCOME(std::string& nick, std::string user);
 	std::string RPL_NICKCHANGE(std::string& old_nick, std::string& new_nick, std::string& user);
 	std::string RPL_JOIN(std::string& nick, std::string& user, std::string& channel_name);
 	std::string RPL_PING(std::string& nick, std::string& token);
 	std::string RPL_SETMODECLIENT(const std::string& nick, const std::string& user, const std::string& channel_name, const std::string& mode, const std::string& target);
-
-
 }
 #endif
