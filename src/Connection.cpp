@@ -84,7 +84,6 @@ namespace irc
 		{
 			int new_fd = Accept();
 			Server::AddConnection(new ClientConnection(new_fd));
-			PRINTNL("NEW CONNECTION RECEIVED", GREEN);
 		}
 		catch(const std::exception& error)
 		{ std::cerr << error.what() << '\n'; }
@@ -132,6 +131,8 @@ namespace irc
 			return SendPong(message);
 		if (message.command == "MODE")
 			return SetMode(message);
+		if (message.command == "NAMES")
+			return SendNames(message);
 	}
 
 	std::string ClientConnection::GetModeString_() const
@@ -148,7 +149,7 @@ namespace irc
 	{
 		ClientConnection *client = Server::GetConnection(message.middle_params[0]);
 		if (client == nullptr)
-			return output_buffer_.Append(ERR_NOSUCHCHANNEL(user.nick, message.middle_params[0]));
+			return output_buffer_.Append(ERR_NOSUCHNICK(message.middle_params[0]));
 		if (client->user.nick != user.nick)
 			return output_buffer_.Append(ERR_USERSDONTMATCH(user.nick, message.middle_params[0]));
 		if (message.middle_params.size() > 1)
@@ -156,15 +157,22 @@ namespace irc
 			std::string mode = CleanModeString_(message.middle_params[1], "io");
 			if (mode.empty())
 				return output_buffer_.Append(ERR_UMODEUNKNOWNFLAG(user.nick));
-			// hier stimmt was noch nicht.
-			if (mode.find_first_of("+o") != std::string::npos)
-				mode_ &= 0b10;
-			if (mode.find_first_of("-o") != std::string::npos)
-				mode_ |= 0b01;
-			if (mode.find_first_of("+i") != std::string::npos)
-				mode_ &= 0b01;
-			if (mode.find_first_of("-i") != std::string::npos)
-				mode_ |= 0b10;
+			bool add;
+			for (std::string::size_type i = 0; i < mode.size(); i++)
+			{
+				if (mode[i] == '-')
+					add = false;
+				else if (mode[i] == '+')
+					add = true;
+				else if (mode[i] == 'i' && add)
+					mode_ |= 0b01;
+				else if (mode[i] == 'i' && !add)
+					mode_ &= 0b10;
+				else if (mode[i] == 'o' && add)
+					mode_ |= 0b10;
+				else if (mode[i] == 'o' && !add)
+					mode_ &= 0b01;
+			}
 		}
 		output_buffer_.Append(RPL_MODEUSER(user.nick, GetModeString_()));
 	}
@@ -176,7 +184,7 @@ namespace irc
 			return output_buffer_.Append(ERR_NOSUCHCHANNEL(user.nick, message.middle_params[0]));
 		if (message.middle_params.size() == 1)
 			return output_buffer_.Append(RPL_CHANNELMODEIS(user.nick, message.middle_params[0], channel->GetModeString()));
-		if (channel->GetPermissions(this) != Channel::OPERATOR)
+		if (!channel->IsOperator(this))
 			return output_buffer_.Append(ERR_CHANOPRIVSNEEDED(user.nick, channel->GetName()));
 		std::string mode;
 		if (message.middle_params.size() == 2)
@@ -202,14 +210,26 @@ namespace irc
 
 	std::string ClientConnection::CleanModeString_(std::string& mode, std::string flag_string)
 	{	
-		std::string cleaned;
-		std::string flags(flag_string);
-		for (std::string::iterator it = flags.begin(); it != flags.end(); it++)
+		std::string add, remove, cleaned;
+
+		for (std::string::size_type i = 0; i < flag_string.size(); i++)
 		{
-			std::string::size_type pos = mode.find_last_of(*it);
-			if (pos != std::string::npos && pos != 0)
-				cleaned.append(mode.substr(pos - 1, 2));
+			std::string::size_type pos = mode.find_last_of(flag_string[i]);
+			if (pos != std::string::npos)
+			{
+				std::string::size_type pos_sign = mode.find_last_of("+-", pos);
+				if (pos_sign == std::string::npos)
+					return cleaned;
+				if (mode[pos_sign] == '+')
+					add += flag_string[i];
+				else
+					remove += flag_string[i];
+			}
 		}
+		if (!add.empty())
+			cleaned += "+" + add;
+		if (!remove.empty())
+			cleaned += "-" + remove;
 		return cleaned;
 	}
 
@@ -242,10 +262,10 @@ namespace irc
 				if (channel == nullptr)
 				{
 					channel = Server::AddChannel(channel_name);
-					channel->AddConnection(this, Channel::OPERATOR);
+					channel->AddConnection(this, OPERATOR);
 				}
 				else
-					channel->AddConnection(this, Channel::USER);
+					channel->AddConnection(this, REGISTERED);
 				channel_list.push_back(channel->GetName());
 				channel->Broadcast(RPL_JOIN(user.nick, user.username, channel_name));
 				output_buffer_.Append(RPL_NAMREPLY(user.nick, channel->GetName(), channel->GetRegisteredString()));

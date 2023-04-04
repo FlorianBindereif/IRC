@@ -126,6 +126,7 @@ namespace irc
 		std::cout << GREEN << nick << " adjusted the mode of " << target << " by " << mode << RESET << "\n";
 		return (":") + nick + "!" + user + "@" + HOST + " MODE " + channel_name + " " + mode + " " + target + "\r\n";
 	}
+	
 
 	// #define ERR_NOSUCHNICK(source, nickname)				"401 " + source + " " + nickname + " :No such nick/channel"
 
