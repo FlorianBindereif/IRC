@@ -154,7 +154,7 @@ namespace irc
 			if ((channel->GetMode() & CHANMOD) == CHANMOD && !channel->IsOperator(this))
 				return output_buffer_.Append(ERR_CHANOPRIVSNEEDED(user.nick, message.middle_params.front()));
 			else
-				return channel->Broadcast(RPL_PRIVMSG(user.nick, user.username, message.middle_params.front(), message.trailing));			
+				return channel->Broadcast(RPL_PRIVMSG(user.nick, user.username, message.middle_params.front(), message.trailing), user.nick);
 		}
 		Connection* target = Server::GetConnection(message.middle_params.front());
 		if (target == nullptr)
@@ -162,6 +162,26 @@ namespace irc
 		output_buffer_.Append(RPL_PRIVMSG(user.nick, user.username, message.middle_params.front(), message.trailing));
 	}
 
+	void ClientConnection::SendNotice(Message& message)
+	{
+		if (message.middle_params.empty() || message.trailing.empty())
+			return ;
+		if (message.middle_params.front().front() == '#')
+		{
+			Channel* channel = Server::GetChannel(message.middle_params.front());
+			if (channel == nullptr)
+				return ;
+			if (!IsInChannel_(message.middle_params.front()))
+				return ;
+			if ((channel->GetMode() & CHANMOD) == CHANMOD && !channel->IsOperator(this))
+				return ;
+			return channel->Broadcast(RPL_PRIVMSG(user.nick, user.username, message.middle_params.front(), message.trailing), user.nick);
+		}
+		Connection* target = Server::GetConnection(message.middle_params.front());
+		if (target == nullptr)
+			return ;
+		output_buffer_.Append(RPL_PRIVMSG(user.nick, user.username, message.middle_params.front(), message.trailing));
+	}
 
 	void ClientConnection::PartChannel(Message& message)
 	{

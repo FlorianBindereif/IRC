@@ -10,12 +10,16 @@ namespace irc
 	void Channel::RemoveConnection(ClientConnection* to_leave)
 	{ registered_.erase(to_leave); }
 
-	void Channel::Broadcast(const std::string& message)
+	void Channel::Broadcast(const std::string& message, std::string exlude_nick)
 	{
 		for (std::map<ClientConnection *, unsigned char>::iterator it = registered_.begin(); it != registered_.end(); it++)
 		{
 			if (it->first->GetStatus() != DISCONNECTED)
+			{
+				if (!exlude_nick.empty() && it->first->user.nick == exlude_nick)
+					continue;;
 				it->first->output_buffer_.Append(message);
+			}
 		}
 	}
 

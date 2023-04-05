@@ -35,7 +35,7 @@ namespace irc
 			std::string GetModeString() const;
 			bool IsOperator(ClientConnection* connection);
 			bool IsInvis(ClientConnection* connection);
-			void Broadcast(const std::string& message);
+			void Broadcast(const std::string& message, std::string exlude_nick = std::string());
 			void AddConnection(ClientConnection* to_join, unsigned char permissions);
 			void RemoveConnection(ClientConnection* connection);
 			void GiveOperator(ClientConnection* connection);

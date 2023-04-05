@@ -73,6 +73,8 @@ namespace irc
 			void 			SendNames(Message& message);
 			void			PartChannel(Message& message);
 			void 			SendMessage(Message& message);
+			void 			SendNotice(Message& message);
+
 
 
 

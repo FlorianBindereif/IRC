@@ -164,9 +164,6 @@ namespace irc
 		std::cout << GREEN << nick << " send message " << msg + " to " + target +  "!" << RESET << "\n";
 		return std::string(":") + nick + "!" + user + "@" + HOST + " PRIVMSG " + target + " :" + msg + "\r\n";
 	}
-
-
-
 }
 
 
