@@ -124,9 +124,16 @@ namespace irc
 	std::string RPL_SETMODECLIENT(const std::string& nick, const std::string& user, const std::string& channel_name, const std::string& mode, const std::string& target)
 	{
 		std::cout << GREEN << nick << " adjusted the mode of " << target << " by " << mode << RESET << "\n";
-		return (":") + nick + "!" + user + "@" + HOST + " MODE " + channel_name + " " + mode + " " + target + "\r\n";
+		return std::string(":") + nick + "!" + user + "@" + HOST + " MODE " + channel_name + " " + mode + " " + target + "\r\n";
 	}
 	
+	std::string RPL_PART(const std::string& nick, const std::string& user, const std::string& channel_name, const std::string reason)
+	{
+		std::cout << GREEN << nick << " just parted channel " << channel_name + " because of: " + reason + "!" << RESET << "\n";
+		return std::string(":") + nick + "!" + user + "@" + HOST + " PART " + channel_name + " " + reason + "!" +  "\r\n";
+	}
+
+// #define RPL_PART(src_nick, src_usr, src_host, channel)				
 
 	// #define ERR_NOSUCHNICK(source, nickname)				"401 " + source + " " + nickname + " :No such nick/channel"
 
@@ -145,6 +152,15 @@ namespace irc
 	{
 		return std::string(":") + SERVERNAME + " 353 " + nick + " = " + channel + " :";
 	}
+
+	std::string ERR_NOTONCHANNEL(const std::string nick, const std::string channel_name)
+	{
+		std::cout << RED << nick << "tried using command on channel he isn't registered to!";
+		return std::string(":") + SERVERNAME + + " 401 " + nick + " " + channel_name + " :You're not on that channel \r\n";
+	}
+
+	// #define ERR_NOTONCHANNEL(src, nick, channel)			":" + src + " 401 " + nick + " " + channel + " :No such nick/channel\r\n"
+
 
 }
 
@@ -184,7 +200,6 @@ namespace irc
 // #define RPL_ENDOFNAMES(src, nick, channel)					":" + src + " 366 " + nick + " " + channel + " :END of NAMES list\r\n"
 // ​
 // // COMMAND REPLIES
-// #define RPL_PART(src_nick, src_usr, src_host, channel)				":" + src_nick + "!" + src_usr + "@" + src_host + " PART " + channel + " :gonee... :'( \r\n"
 // #define RPL_PRIVMSG(src_nick, src_usr, src_host, dis_nick, msg)		":" + src_nick + "!" + src_usr + "@" + src_host + " PRIVMSG " + dis_nick + " :" + msg + "\r\n"
 // #define RPL_NOTICE(src_nick, src_usr, src_host, dis_nick, msg)		":" + src_nick + "!" + src_usr + "@" + src_host + " NOTICE " + dis_nick + " :" + msg + "\r\n"
 // #define RPL_QUIT(src_nick, src_usr, src_host)						":" + src_nick + "!" + src_usr + "@" + src_host + " QUIT :Client Quit \r\n"

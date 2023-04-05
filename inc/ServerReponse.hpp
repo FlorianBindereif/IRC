@@ -30,5 +30,8 @@ namespace irc
 	std::string RPL_JOIN(std::string& nick, std::string& user, std::string& channel_name);
 	std::string RPL_PING(std::string& nick, std::string& token);
 	std::string RPL_SETMODECLIENT(const std::string& nick, const std::string& user, const std::string& channel_name, const std::string& mode, const std::string& target);
+	std::string ERR_NOTONCHANNEL(const std::string nick, const std::string channel_name);
+	std::string RPL_PART(const std::string& nick, const std::string& user, const std::string& channel_name, const std::string reason = " goodbye");
+
 }
 #endif

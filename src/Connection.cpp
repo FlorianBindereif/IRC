@@ -133,6 +133,45 @@ namespace irc
 			return SetMode(message);
 		if (message.command == "NAMES")
 			return SendNames(message);
+		if (message.command == "PART")
+			return PartChannel(message);
+		if (message.command == "PRIVMSG")
+			return SendMessage(message);
+		
+	}
+
+	void ClientConnection::SendMessage(Message& message)
+	{
+		(void) message;
+	}
+
+	void ClientConnection::PartChannel(Message& message)
+	{
+		if (message.middle_params.empty())
+			return output_buffer_.Append(ERR_NEEDMOREPARAMS(message.command));
+		std::istringstream iss(message.middle_params[0]);
+		std::string channel_name;
+		while(getline(iss, channel_name, ','))
+		{
+			Channel* channel = Server::GetChannel(channel_name);
+			if (channel == nullptr)
+				output_buffer_.Append(ERR_NOSUCHCHANNEL(user.nick, channel_name));
+			else if (!IsInChannel_(channel_name))
+				output_buffer_.Append(ERR_NOTONCHANNEL(user.nick, channel_name));
+			else
+			{
+				if (message.middle_params.size() > 1)
+					channel->Broadcast(RPL_PART(user.nick, user.username, channel_name, message.middle_params[1]));
+				else
+					channel->Broadcast(RPL_PART(user.nick, user.username, channel_name));
+				channel->RemoveConnection(this);
+				std::vector<std::string>::iterator it = std::find(channel_list.begin(), channel_list.end(), channel_name);
+				if (it != channel_list.end())
+					channel_list.erase(it);
+				// invit
+			}
+			
+		}
 	}
 
 	std::string ClientConnection::GetModeString_() const
@@ -278,12 +317,8 @@ namespace irc
 
 	bool ClientConnection::IsInChannel_(const std::string& channel_name)
 	{
-		for (std::vector<std::string>::size_type i = 0; i < channel_list.size(); i++)
-		{
-			if (channel_list[i] == channel_name)
-				return true;
-		}
-		return false;
+		std::vector<std::string>::iterator it = std::find(channel_list.begin(), channel_list.end(), channel_name);
+		return it == channel_list.end() ? false : true;
 	}
 
 	void ClientConnection::SendNames(Message& message)

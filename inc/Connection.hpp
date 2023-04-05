@@ -71,6 +71,10 @@ namespace irc
 			void 			SendPong(Message& message);
 			void 			SetMode(Message& message);
 			void 			SendNames(Message& message);
+			void			PartChannel(Message& message);
+			void 			SendMessage(Message& message);
+
+
 
 	};
 
