@@ -97,12 +97,6 @@ namespace irc
 		return std::string(":") + SERVERNAME + " 221 " + nick + " " + mode + "\r\n";
 	}
 
-	std::string ERR_UMODEUNKNOWNFLAG(std::string& nick)
-	{
-		std::cout << RED << nick << "used invalid mode flags" << RESET << "\n";
-		return std::string(":") + SERVERNAME + " 501 " + nick + " :Unknown MODE flags\r\n";
-	}
-
 	std::string RPL_CHANNELMODEIS(std::string& nick, std::string& channel_name, const std::string& mode)
 	{
 		std::cout << GREEN << nick << "requested " << channel_name << "'s mode: " << mode << RESET << "\n";
@@ -115,11 +109,13 @@ namespace irc
 		return std::string(":") + SERVERNAME + " 324 " + nick + " " + channel_name + " " + mode + "\r\n";
 	}
 	
-	std::string ERR_NOSUCHNICK(std::string& nick)
+	std::string ERR_NOSUCHNICK(const std::string& nick, const std::string channel_name)
 	{
-		std::cout << RED << "User tried using nick " << nick << " but it did not exist" << RESET << "\n";
-		return std::string("401 ") + SERVERNAME + " " + nick + " :No such nick/channel";
+		std::cout << RED << "User "  << nick << " tried accessing " << channel_name << " but it did not exist!" << RESET << "\n";
+		return std::string(":") + SERVERNAME " 401 " + nick + " " + channel_name + " :No such nick/channel\r\n";
 	}
+
+	#define ERR_NOSUCHNICK(src, nick, channel)								":" + src + " 401 " + nick + " " + channel + " :No such nick/channel\r\n"
 
 	std::string RPL_SETMODECLIENT(const std::string& nick, const std::string& user, const std::string& channel_name, const std::string& mode, const std::string& target)
 	{
@@ -133,14 +129,12 @@ namespace irc
 		return std::string(":") + nick + "!" + user + "@" + HOST + " PART " + channel_name + " " + reason + "!" +  "\r\n";
 	}
 
-// #define RPL_PART(src_nick, src_usr, src_host, channel)				
+	std::string ERR_CANNOTSENDTOCHAN(const std::string& nick, const std::string& channel_name)
+	{
+		std::cout << RED << nick << " tried sending message to " << channel_name << " but was not registered to it!" << RESET << "\n";
+		return std::string(":") + SERVERNAME +  " 404 " + nick + " " + channel_name + " :Cannot send to channel\r\n";
+	}
 
-	// #define ERR_NOSUCHNICK(source, nickname)				"401 " + source + " " + nickname + " :No such nick/channel"
-
-	// std::string RPL_SETMODECHANNEL(std::string& nick, std::string& user, std::string, std::string& channel_name, std::string& mode, std::string& nick)
-	// {
-	// 	return std::string(":") + ":" + nick + "!" + user + "@" + HOST + " MODE " + channel_name + " " + mode + " " + nick + "\r\n";
-	// }
 
 	std::string ERR_CHANOPRIVSNEEDED(std::string& nick, const std::string& channel_name)
 	{
@@ -159,7 +153,18 @@ namespace irc
 		return std::string(":") + SERVERNAME + + " 401 " + nick + " " + channel_name + " :You're not on that channel \r\n";
 	}
 
-	// #define ERR_NOTONCHANNEL(src, nick, channel)			":" + src + " 401 " + nick + " " + channel + " :No such nick/channel\r\n"
+	std::string ERR_UMODEUNKNOWNFLAG(std::string& nick)
+	{
+		std::cout << RED << nick << "used invalid mode flags" << RESET << "\n";
+		return std::string(":") + SERVERNAME + " 501 " + nick + " :Unknown MODE flags\r\n";
+	}	
+
+	std::string	RPL_PRIVMSG(const std::string& nick, const std::string& user, const std::string& target, const std::string& msg)
+	{
+		std::cout << GREEN << nick << " send message " << msg + " to " + target +  "!" << RESET << "\n";
+		return std::string(":") + nick + "!" + user + "@" + HOST + " PRIVMSG " + target + " :" + msg + "\r\n";
+	}
+
 
 
 }
@@ -177,27 +182,20 @@ namespace irc
 // //ERROR REPLIES
 // #define ERR_ALREADYLOGEDIN(source)						":" + source + " 460 " ":Already logged in\r\n"
 // ​
-// #define ERR_NOTONCHANNEL(src, nick, channel)			":" + src + " 401 " + nick + " " + channel + " :No such nick/channel\r\n"
-// #define ERR_CANNOTSENDTOCHAN(src, nick, channel)		":" + src +  " 404 " + nick + " " + channel + " :Cannot send to channel\r\n"
 // #define	ERR_UMODEUNKNOWNFLAUSR(src, nick)				":" + src +  " 501 " + nick + " :Unknown MODE flags\r\n"
 // #define	ERR_UMODEUNKNOWNFLAGCH(src, nick)				":" + src +  " 472 " + nick + " :Unknown mode char to me\r\n"
-// #define ERR_CHANOPRIVSNEEDED(src, nick, channel)		":" + src +  " 482 " + nick + " " + channel + " :You're not channel operator \r\n"
 // ​
 // #define ERR_ERRONEUSNICKNAME(nick)						"432 " + nick + ":Erroneous nickname"
 // ​
 // #define ERR_UNKNOWNCOMMAND(source, command)				"421 " + source + " " + command + " :Unknown command"
 // #define ERR_TOOMANYCHANNELS(source, channel)			"405 " + source + " " + channel + " :You have joined too many channels"
 // #define ERR_BADCHANNELKEY(source, channel)				"475 " + source + " " + channel + " :Cannot join channel (+k)"
-// #define ERR_NOSUCHNICK(source, nickname)				"401 " + source + " " + nickname + " :No such nick/channel"
 // #define ERR_USERNOTINCHANNEL(source, nickname, channel)	"441 " + source + " " + nickname + " " + channel + " :They aren't on that channel"
 // #define ERR_CHANNELISFULL(source, channel)				"471 " + source + " " + channel + " :Cannot join channel (+l)"
 // ​
 // // NUMERIC REPLIES
-// #define RPL_PING(src, token)								":" + src + " PONG " + src + " :" + token + "\r\n"
 // #define	RPL_TOPIC(src, nick, channel, topic)				":" + src + " 332 " + nick + " " + channel + " :" + topic + "\r\n"
 // #define RPL_NOTOPIC(src, nick, channel)						":" + src + " 331 " + nick + " " + channel + " :No topic is set\r\n"
-// #define	RPL_NAMREPLY(src, nick, channel)					":" + src + " 353 " + nick + " = " + channel + " :"
-// #define RPL_ENDOFNAMES(src, nick, channel)					":" + src + " 366 " + nick + " " + channel + " :END of NAMES list\r\n"
 // ​
 // // COMMAND REPLIES
 // #define RPL_PRIVMSG(src_nick, src_usr, src_host, dis_nick, msg)		":" + src_nick + "!" + src_usr + "@" + src_host + " PRIVMSG " + dis_nick + " :" + msg + "\r\n"

@@ -6,10 +6,18 @@
 #include <map>
 #include "Connection.hpp"
 
+
+//Registered Modes
 #define NOTMEMBER 0b0000
 #define MEMBER 0b0001
 #define INVIS 0b0010
 #define OPERATOR 0b0100
+
+//Channel Modes
+#define CHANMOD 0b0001
+#define CHANINITE 0b0010
+#define CANTOPIC 0b0100
+#define CANBAN 0b1000
 
 namespace irc
 {
