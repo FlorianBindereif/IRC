@@ -160,10 +160,10 @@ namespace irc
 				output_buffer_.Append(ERR_NOTONCHANNEL(user.nick, channel_name));
 			else
 			{
-				if (message.middle_params.size() > 1)
-					channel->Broadcast(RPL_PART(user.nick, user.username, channel_name, message.middle_params[1]));
-				else
+				if (message.trailing.empty())
 					channel->Broadcast(RPL_PART(user.nick, user.username, channel_name));
+				else
+					channel->Broadcast(RPL_PART(user.nick, user.username, channel_name, message.trailing));
 				channel->RemoveConnection(this);
 				std::vector<std::string>::iterator it = std::find(channel_list.begin(), channel_list.end(), channel_name);
 				if (it != channel_list.end())
