@@ -137,7 +137,29 @@ namespace irc
 			return PartChannel(message);
 		if (message.command == "PRIVMSG")
 			return SendMessage(message);
-		
+		if (message.command == "INVITE")
+			return InviteClient(message);
+	}
+
+	void ClientConnection::InviteClient(Message& message)
+	{
+		if (message.middle_params.size() < 2)
+			return output_buffer_.Append(ERR_NEEDMOREPARAMS(message.command));
+		Channel* channel = Server::GetChannel(message.middle_params[1]);
+		if (channel == nullptr)
+			return output_buffer_.Append(ERR_NOSUCHCHANNEL(user.nick, message.middle_params[1]));
+		if (!IsInChannel_(message.middle_params[1]))
+			return output_buffer_.Append(ERR_NOTONCHANNEL(user.nick, message.middle_params[1]));
+		if (!channel->IsOperator(this))
+			return output_buffer_.Append(ERR_CHANOPRIVSNEEDED(user.nick, message.middle_params[1]));
+		ClientConnection* target = Server::GetConnection(message.middle_params.front());
+		if (target == nullptr)
+			return output_buffer_.Append(ERR_NOSUCHNICK(user.nick, message.middle_params[1]));
+		if (target->IsInChannel_(message.middle_params[1]))
+			return output_buffer_.Append(ERR_USERONCHANNEL(user.nick, message.middle_params[1], target->user.nick));
+		output_buffer_.Append(RPL_INVITING(user.nick, message.middle_params[1], target->user.nick));
+		target->output_buffer_.Append(RPL_INVITED(user.nick, user.username, message.middle_params[1],target->user.nick));
+		target->channel_list.push_back(message.middle_params[1]);
 	}
 
 	void ClientConnection::SendMessage(Message& message)
@@ -206,7 +228,7 @@ namespace irc
 				std::vector<std::string>::iterator it = std::find(channel_list.begin(), channel_list.end(), channel_name);
 				if (it != channel_list.end())
 					channel_list.erase(it);
-				// invit
+				// ist er immernoch invited danach?
 			}
 		}
 	}
@@ -322,6 +344,7 @@ namespace irc
 
 	void ClientConnection::SendPong(Message& message)
 	{ output_buffer_.Append(RPL_PING(user.nick, message.middle_params.front()));	}
+
 
 	void ClientConnection::JoinChannel(Message& message)
 	{

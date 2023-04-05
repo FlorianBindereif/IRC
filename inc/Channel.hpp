@@ -15,9 +15,9 @@
 
 //Channel Modes
 #define CHANMOD 0b0001
-#define CHANINITE 0b0010
-#define CANTOPIC 0b0100
-#define CANBAN 0b1000
+#define CHANINVITE 0b0010
+#define CHANTOPIC 0b0100
+#define CHANBAN 0b1000
 
 namespace irc
 {
@@ -26,6 +26,7 @@ namespace irc
 		private:
 			unsigned char								mode_;
 			std::string 								name_;
+			std::vector<std::string>					invited_;				
 			std::map<ClientConnection *, unsigned char>	registered_;
 		public:
 			Channel(std::string name);
@@ -35,6 +36,7 @@ namespace irc
 			std::string GetModeString() const;
 			bool IsOperator(ClientConnection* connection);
 			bool IsInvis(ClientConnection* connection);
+			bool IsInvited(ClientConnection* connection);
 			void Broadcast(const std::string& message, std::string exlude_nick = std::string());
 			void AddConnection(ClientConnection* to_join, unsigned char permissions);
 			void RemoveConnection(ClientConnection* connection);

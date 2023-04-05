@@ -164,6 +164,24 @@ namespace irc
 		std::cout << GREEN << nick << " send message " << msg + " to " + target +  "!" << RESET << "\n";
 		return std::string(":") + nick + "!" + user + "@" + HOST + " PRIVMSG " + target + " :" + msg + "\r\n";
 	}
+
+	std::string ERR_USERONCHANNEL(std::string& nick, const std::string& channel_name, const std::string& target)
+	{
+		std::cout << RED << nick << " inviting " << target << " to " << channel_name << " but he was already on channel!" << RESET << "\n";
+		return std::string(":") + SERVERNAME + " 443 " + nick + " " + channel_name + " :Is already on channel \r\n";
+	}
+
+	std::string	RPL_INVITING(const std::string& nick, const std::string& channel_name, const std::string& target)
+	{
+		std::cout << GREEN << nick << " invited " << target << " to " << channel_name << "!" << RESET << "\n";
+		return std::string(":") + SERVERNAME + " 341 " + nick + " " + target + " " + channel_name + "\r\n";
+	}
+
+	std::string	RPL_INVITED(const std::string& nick, const std::string& user, const std::string& channel_name, const std::string& target)
+	{
+		std::cout << GREEN << target << " has been invited " << " to " << channel_name << " by " << nick << "!" << RESET << "\n";
+		return std::string(":") + nick + "!" + user + "@" + HOST + " INVITE " + target + " :" + channel_name + "\r\n";
+	}
 }
 
 
@@ -178,10 +196,6 @@ namespace irc
 // ​
 // //ERROR REPLIES
 // #define ERR_ALREADYLOGEDIN(source)						":" + source + " 460 " ":Already logged in\r\n"
-// ​
-// #define	ERR_UMODEUNKNOWNFLAUSR(src, nick)				":" + src +  " 501 " + nick + " :Unknown MODE flags\r\n"
-// #define	ERR_UMODEUNKNOWNFLAGCH(src, nick)				":" + src +  " 472 " + nick + " :Unknown mode char to me\r\n"
-// ​
 // #define ERR_ERRONEUSNICKNAME(nick)						"432 " + nick + ":Erroneous nickname"
 // ​
 // #define ERR_UNKNOWNCOMMAND(source, command)				"421 " + source + " " + command + " :Unknown command"

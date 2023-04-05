@@ -35,6 +35,12 @@ namespace irc
 		return it == registered_.end() ? false : (it->second & OPERATOR) == OPERATOR;
 	}
 
+	bool Channel::IsInvited(ClientConnection* connection)
+	{
+		std::vector<std::string>::iterator it = std::find(invited_.begin(), invited_.end(), connection->user.nick);
+		return it == invited_.end() ? false : true;
+	}
+
 	void Channel::GiveOperator(ClientConnection* connection)
 	{
 		try
