@@ -181,4 +181,7 @@ namespace irc
 
 	std::string Channel::GetTopic()
 	{ return topic_;}
+
+	bool Channel::IsEmpty()
+	{ return registered_.empty(); }
 }

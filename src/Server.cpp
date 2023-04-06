@@ -57,7 +57,6 @@ namespace irc
 	{
 		size_type i = 0;
 
-		//delete aus usermap noch notwendig. Man muss wahrscheinlich casten.
 		while (i < connections_.size())
 		{
 			if (connections_[i]->GetStatus() == DISCONNECTED)
@@ -70,6 +69,11 @@ namespace irc
 			}
 			polls_[i].revents = 0;
 			i++;
+		}
+		for (chan_iter it = channels_.begin(); it != channels_.end(); it++)
+		{
+			if (it->second.IsEmpty())
+				it = channels_.erase(it);
 		}
 	}
 

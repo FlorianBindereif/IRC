@@ -5,7 +5,7 @@
 #include "Buffer.hpp"
 #include <vector>
 
-#define SERVINVIS 0b01;
+#define SERVINVIS 0b01
 #define SERVOP 0b10
 
 namespace irc

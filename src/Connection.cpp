@@ -316,7 +316,8 @@ namespace irc
 				std::vector<std::string>::iterator it = std::find(channel_list.begin(), channel_list.end(), channel_name);
 				if (it != channel_list.end())
 					channel_list.erase(it);
-				// ist er immernoch invited danach?
+				if (channel->IsEmpty())
+					Server::
 			}
 		}
 	}
@@ -324,9 +325,9 @@ namespace irc
 	std::string ClientConnection::GetModeString_() const
 	{
 		std::string mode("+");
-		if (mode_ & 0b01)
+		if ((mode_ & SERVINVIS) == SERVINVIS)
 			mode += "i";
-		if (mode_ & 0b10)
+		if ((mode_ & SERVOP) == SERVOP)
 			mode += "o";
 		return mode; 
 	}

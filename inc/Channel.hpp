@@ -35,6 +35,7 @@ namespace irc
 			std::string GetName() const;
 			unsigned char GetMode() const;
 			std::string GetModeString() const;
+			bool IsEmpty();
 			bool IsOperator(ClientConnection* connection);
 			bool IsInvis(ClientConnection* connection);
 			bool IsInvited(ClientConnection* connection);
