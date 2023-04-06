@@ -70,10 +70,12 @@ namespace irc
 			polls_[i].revents = 0;
 			i++;
 		}
-		for (chan_iter it = channels_.begin(); it != channels_.end(); it++)
+		for (chan_iter it = channels_.begin(); it != channels_.end();)
 		{
 			if (it->second.IsEmpty())
 				it = channels_.erase(it);
+			else
+				it++;
 		}
 	}
 
