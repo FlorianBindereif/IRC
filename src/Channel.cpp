@@ -37,8 +37,14 @@ namespace irc
 
 	bool Channel::IsInvited(ClientConnection* connection)
 	{
-		std::vector<std::string>::iterator it = std::find(invited_.begin(), invited_.end(), connection->user.nick);
+		std::vector<ClientConnection*>::iterator it = std::find(invited_.begin(), invited_.end(), connection);
 		return it == invited_.end() ? false : true;
+	}
+
+	bool Channel::IsRegistered(ClientConnection* connection)
+	{
+		std::map<ClientConnection *, unsigned char>::iterator it = registered_.find(connection);
+		return it == registered_.end() ? false : true;
 	}
 
 	void Channel::GiveOperator(ClientConnection* connection)
@@ -54,6 +60,20 @@ namespace irc
 		{ registered_.at(connection) &= ~OPERATOR; }
 		catch(const std::exception& e)
 		{ std::cerr << connection->user.nick << " tried to lose op permissions but was not registered to the channel" << name_ << '\n'; } 
+	}
+
+	void Channel::GiveInvite(ClientConnection* connection)
+	{ 
+		std::vector<ClientConnection *>::iterator it = std::find(invited_.begin(), invited_.end(), connection);
+		if (it == invited_.end())
+			invited_.push_back(connection);
+	}
+
+	void Channel::TakeInvite(ClientConnection* connection)
+	{
+		std::vector<ClientConnection *>::iterator it = std::find(invited_.begin(), invited_.end(), connection);
+		if (it != invited_.end())
+			invited_.erase(it);
 	}
 	
 	void Channel::GiveInvis(ClientConnection* connection)

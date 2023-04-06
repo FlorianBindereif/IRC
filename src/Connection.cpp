@@ -141,6 +141,40 @@ namespace irc
 			return InviteClient(message);
 		if (message.command == "TOPIC")
 			return SetTopic(message);
+		if (message.command == "KICK")
+			return KickMember(message);
+	}
+
+
+	// use channel->IsRegistered() statt InChannel
+	void ClientConnection::KickMember(Message& message)
+	{
+		if (message.middle_params.size() < 2)
+			return output_buffer_.Append(ERR_NEEDMOREPARAMS(message.command));
+		Channel* channel = Server::GetChannel(message.middle_params.front());
+		if (channel == nullptr)
+			return output_buffer_.Append(ERR_NOSUCHCHANNEL(user.nick, message.middle_params.front()));
+		if (!channel->IsRegistered(this))
+			return output_buffer_.Append(ERR_NOTONCHANNEL(user.nick, message.middle_params.front()));
+		if (!channel->IsOperator(this))
+			return output_buffer_.Append(ERR_CHANOPRIVSNEEDED(user.nick, message.middle_params.front()));
+		std::istringstream iss(message.middle_params[1]);
+		std::string target_name;
+		while(getline(iss, target_name, ','))
+		{
+			ClientConnection* target = Server::GetConnection(target_name);
+			if (target == nullptr)
+				output_buffer_.Append(ERR_NOSUCHNICK(user.nick, target_name));
+			else if (!channel->IsRegistered(target))
+				output_buffer_.Append(ERR_USERNOTINCHANNEL(user.nick, message.middle_params.front()));
+			if (message.trailing.empty())
+				channel->Broadcast(RPL_KICK(user.nick, user.username, channel->GetName(), target->user.nick));
+			else
+				channel->Broadcast(RPL_KICK(user.nick, user.username, channel->GetName(), target->user.nick, message.trailing));
+			target->channel_list.erase(std::find(target->channel_list.begin(), target->channel_list.end(), channel->GetName()));
+			channel->RemoveConnection(target);
+			channel->TakeInvite(target);
+		}
 	}
 
 	void ClientConnection::SetTopic(Message& message)
@@ -169,14 +203,14 @@ namespace irc
 		Channel* channel = Server::GetChannel(message.middle_params[1]);
 		if (channel == nullptr)
 			return output_buffer_.Append(ERR_NOSUCHCHANNEL(user.nick, message.middle_params[1]));
-		if (!IsInChannel_(message.middle_params[1]))
+		if (!channel->IsRegistered(this))
 			return output_buffer_.Append(ERR_NOTONCHANNEL(user.nick, message.middle_params[1]));
 		if (!channel->IsOperator(this))
 			return output_buffer_.Append(ERR_CHANOPRIVSNEEDED(user.nick, message.middle_params[1]));
 		ClientConnection* target = Server::GetConnection(message.middle_params.front());
 		if (target == nullptr)
 			return output_buffer_.Append(ERR_NOSUCHNICK(user.nick, message.middle_params[1]));
-		if (target->IsInChannel_(message.middle_params[1]))
+		if (!channel->IsRegistered(target))
 			return output_buffer_.Append(ERR_USERONCHANNEL(user.nick, message.middle_params[1], target->user.nick));
 		output_buffer_.Append(RPL_INVITING(user.nick, message.middle_params[1], target->user.nick));
 		target->output_buffer_.Append(RPL_INVITED(user.nick, user.username, message.middle_params[1],target->user.nick));
@@ -192,7 +226,7 @@ namespace irc
 			Channel* channel = Server::GetChannel(message.middle_params.front());
 			if (channel == nullptr)
 				return output_buffer_.Append(ERR_NOSUCHNICK(user.nick, message.middle_params.front()));
-			if (!IsInChannel_(message.middle_params.front()))
+			if (!channel->IsRegistered(this))
 				return output_buffer_.Append(ERR_CANNOTSENDTOCHAN(user.nick, message.middle_params.front()));
 			if ((channel->GetMode() & CHANMOD) == CHANMOD && !channel->IsOperator(this))
 				return output_buffer_.Append(ERR_CHANOPRIVSNEEDED(user.nick, message.middle_params.front()));
@@ -214,7 +248,7 @@ namespace irc
 			Channel* channel = Server::GetChannel(message.middle_params.front());
 			if (channel == nullptr)
 				return ;
-			if (!IsInChannel_(message.middle_params.front()))
+			if (!channel->IsRegistered(this))
 				return ;
 			if ((channel->GetMode() & CHANMOD) == CHANMOD && !channel->IsOperator(this))
 				return ;
@@ -237,7 +271,7 @@ namespace irc
 			Channel* channel = Server::GetChannel(channel_name);
 			if (channel == nullptr)
 				output_buffer_.Append(ERR_NOSUCHCHANNEL(user.nick, channel_name));
-			else if (!IsInChannel_(channel_name))
+			else if (!channel->IsRegistered(this))
 				output_buffer_.Append(ERR_NOTONCHANNEL(user.nick, channel_name));
 			else
 			{
@@ -402,12 +436,6 @@ namespace irc
 		}
 	}
 
-	bool ClientConnection::IsInChannel_(const std::string& channel_name)
-	{
-		std::vector<std::string>::iterator it = std::find(channel_list.begin(), channel_list.end(), channel_name);
-		return it == channel_list.end() ? false : true;
-	}
-
 	void ClientConnection::SendNames(Message& message)
 	{
 		if (message.middle_params.empty())
@@ -423,7 +451,7 @@ namespace irc
 				continue;
 			}
 			std::string reply;
-			if (IsInChannel_(channel->GetName()))
+			if (channel->IsRegistered(this))
 				reply = channel->GetRegisteredString();
 			else
 				reply = channel->GetRegisteredString(false);

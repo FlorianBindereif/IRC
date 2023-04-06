@@ -27,7 +27,7 @@ namespace irc
 			unsigned char								mode_;
 			std::string 								name_;
 			std::string									topic_;
-			std::vector<std::string>					invited_;			
+			std::vector<ClientConnection*>				invited_;			
 			std::map<ClientConnection *, unsigned char>	registered_;
 		public:
 			Channel(std::string name);
@@ -38,9 +38,12 @@ namespace irc
 			bool IsOperator(ClientConnection* connection);
 			bool IsInvis(ClientConnection* connection);
 			bool IsInvited(ClientConnection* connection);
+			bool IsRegistered(ClientConnection* connection);
 			void Broadcast(const std::string& message, std::string exlude_nick = std::string());
 			void AddConnection(ClientConnection* to_join, unsigned char permissions);
 			void RemoveConnection(ClientConnection* connection);
+			void GiveInvite(ClientConnection* connection);
+			void TakeInvite(ClientConnection* connection);
 			void GiveOperator(ClientConnection* connection);
 			void TakeOperator(ClientConnection* connection);
 			void GiveInvis(ClientConnection* connection);

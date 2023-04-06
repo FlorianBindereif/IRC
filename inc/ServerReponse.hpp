@@ -42,6 +42,8 @@ namespace irc
 	std::string RPL_NOTOPIC(std::string& nick, const std::string& channel_name);
 	std::string RPL_TOPIC(std::string& nick, const std::string& channel_name, const std::string& topic);
 	std::string RPL_TOPICCHANGE(const std::string& nick, const std::string& user, const std::string& channel_name, const std::string& topic);
+	std::string ERR_USERNOTINCHANNEL(std::string& nick, const std::string& channel_name);
+	std::string RPL_KICK(const std::string& nick, const std::string& user, const std::string& channel_name, const std::string& target, std::string reason = "no reason stated");
 }
 
 #endif

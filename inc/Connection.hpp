@@ -57,7 +57,7 @@ namespace irc
 			void 			SetClientMode_(Message& message);
 			std::string		GetModeString_() const;
 			std::string 	CleanModeString_(std::string& mode, std::string flag_string);
-			bool 			IsInChannel_(const std::string& channel_name);
+
 		public:
 			void 			Receive();
 			void 			Send();
@@ -76,7 +76,7 @@ namespace irc
 			void 			SendNotice(Message& message);
 			void			InviteClient(Message& message);
 			void 			SetTopic(Message& message);
-
+			void			KickMember(Message& message);
 	};
 
 	class ServerConnection: public Connection

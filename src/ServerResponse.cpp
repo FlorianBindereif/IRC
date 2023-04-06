@@ -176,6 +176,12 @@ namespace irc
 		return std::string(":") + SERVERNAME + " 443 " + nick + " " + channel_name + " :Is already on channel \r\n";
 	}
 
+	std::string ERR_USERNOTINCHANNEL(std::string& nick, const std::string& channel_name)
+	{
+		std::cout << RED << nick << " is not in"  << channel_name << "!" << RESET << "\n";
+		return std::string(":") + "441 " + SERVERNAME + " " + nick + " " + channel_name + " : is not on channel \r\n";
+	}
+
 	std::string	RPL_INVITING(const std::string& nick, const std::string& channel_name, const std::string& target)
 	{
 		std::cout << GREEN << nick << " invited " << target << " to " << channel_name << "!" << RESET << "\n";
@@ -211,6 +217,12 @@ namespace irc
 		std::cout << GREEN << nick << " set the topic of " << channel_name << " to " << topic << "!" << RESET << "\n";
 		return std::string(":") + nick + "!" + user + "@" + HOST + " TOPIC " + channel_name + " :" + topic + "\r\n";
 	}
+
+	std::string RPL_KICK(const std::string& nick, const std::string& user, const std::string& channel_name, const std::string& target, std::string reason)
+	{
+		std::cout << GREEN << nick << " kicked " << target << " of " << channel_name << " because: " << reason << "!" << RESET << "\n";
+		return std::string(":") +  nick + "!" + user + "@" + HOST + " KICK " + channel_name + " " + target + " :" + reason + "\r\n";
+	}
 }
 
 
@@ -236,7 +248,6 @@ namespace irc
 // ​
 // // COMMAND REPLIES
 // #define RPL_QUIT(src_nick, src_usr, src_host)						":" + src_nick + "!" + src_usr + "@" + src_host + " QUIT :Client Quit \r\n"
-// #define RPL_KICK(source, channel, target, reason)					":" + source + " KICK " + channel + " " + target + " :" + reason
 // ​
 // std::vector<std::string>	ft_split(const char buffer[1000], std::string delim);
 // ​
