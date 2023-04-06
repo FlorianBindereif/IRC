@@ -46,6 +46,8 @@ namespace irc
 	std::string RPL_KICK(const std::string& nick, const std::string& user, const std::string& channel_name, const std::string& target, std::string reason = "no reason stated");
 	std::string RPL_YOUREOPER(const std::string& nick, const std::string& target);
 	std::string RPL_QUIT(const std::string& nick, const std::string& user, const std::string reason = "no reason");
+	std::string ERR_UNKNOWNCOMMAND(const std::string& nick, const std::string& command);
+
 }
 
 #endif

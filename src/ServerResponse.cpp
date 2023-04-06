@@ -235,13 +235,19 @@ namespace irc
 		return std::string(":") + nick + "!" + user + "@" + HOST + " " + "QUIT :" + reason + "\r\n";
 	}
 
+	std::string ERR_UNKNOWNCOMMAND(const std::string& nick, const std::string& command)
+	{
+		std::cout << RED << nick << " tried executing unknown command: " << command << "!" << RESET << "\n";
+		return std::string(":") + SERVERNAME + " 421 " + nick + " " + command + " :Unknown command\r\n";
+	}
+
+
 }
 
 // //ERROR REPLIES
 // #define ERR_ALREADYLOGEDIN(source)						":" + source + " 460 " ":Already logged in\r\n"
 // #define ERR_ERRONEUSNICKNAME(nick)						"432 " + nick + ":Erroneous nickname"
 // ​
-// #define ERR_UNKNOWNCOMMAND(source, command)				"421 " + source + " " + command + " :Unknown command"
 // #define ERR_TOOMANYCHANNELS(source, channel)			"405 " + source + " " + channel + " :You have joined too many channels"
 // #define ERR_BADCHANNELKEY(source, channel)				"475 " + source + " " + channel + " :Cannot join channel (+k)"
 // #define ERR_CHANNELISFULL(source, channel)				"471 " + source + " " + channel + " :Cannot join channel (+l)"

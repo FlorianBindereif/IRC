@@ -147,8 +147,8 @@ namespace irc
 			return MakeOperator(message);
 		if (message.command == "QUIT")
 			return LeaveServer(message);
+		output_buffer_.Append(ERR_UNKNOWNCOMMAND(user.nick, message.command));
 	}
-
 
 	void ClientConnection::LeaveServer(Message& message)
 	{
@@ -316,8 +316,6 @@ namespace irc
 				std::vector<std::string>::iterator it = std::find(channel_list.begin(), channel_list.end(), channel_name);
 				if (it != channel_list.end())
 					channel_list.erase(it);
-				if (channel->IsEmpty())
-					Server::
 			}
 		}
 	}
