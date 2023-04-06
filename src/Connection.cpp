@@ -312,10 +312,11 @@ namespace irc
 					channel->Broadcast(RPL_PART(user.nick, user.username, channel_name));
 				else
 					channel->Broadcast(RPL_PART(user.nick, user.username, channel_name, message.trailing));
-				channel->RemoveConnection(this);
 				std::vector<std::string>::iterator it = std::find(channel_list.begin(), channel_list.end(), channel_name);
 				if (it != channel_list.end())
 					channel_list.erase(it);
+				channel->RemoveConnection(this);
+				std::cout << channel->GetRegisteredString() << std::endl;
 			}
 		}
 	}

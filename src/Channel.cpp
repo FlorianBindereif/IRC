@@ -8,7 +8,11 @@ namespace irc
 	{ registered_.insert(std::make_pair(to_join, permission)); }
 
 	void Channel::RemoveConnection(ClientConnection* to_leave)
-	{ registered_.erase(to_leave); }
+	{ 
+		std::map<ClientConnection *, unsigned char>:: iterator it = registered_.find(to_leave);
+		if (it != registered_.end())
+			registered_.erase(to_leave); 
+	}
 
 	void Channel::Broadcast(const std::string& message, std::string exlude_nick)
 	{
