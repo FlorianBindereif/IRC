@@ -75,6 +75,8 @@ namespace irc
 			void 			SendMessage(Message& message);
 			void 			SendNotice(Message& message);
 			void			InviteClient(Message& message);
+			void 			SetTopic(Message& message);
+
 	};
 
 	class ServerConnection: public Connection

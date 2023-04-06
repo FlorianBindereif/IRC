@@ -155,4 +155,10 @@ namespace irc
 
 	std::string Channel::GetName() const
 	{ return name_; }
+
+	void Channel::SetTopic(std::string& topic)
+	{ topic_ = topic; }
+
+	std::string Channel::GetTopic()
+	{ return topic_;}
 }

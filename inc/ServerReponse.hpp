@@ -37,5 +37,11 @@ namespace irc
 	std::string ERR_USERONCHANNEL(std::string& nick, const std::string& channel_name, const std::string& target);
 	std::string	RPL_INVITING(const std::string& nick, const std::string& channel_name, const std::string& target);
 	std::string	RPL_INVITED(const std::string& nick, const std::string& user, const std::string& channel_name, const std::string& target);
+	std::string ERR_INVITEONLYCHAN(std::string& nick, const std::string& channel_name);
+	std::string	RPL_NOTICE(const std::string& nick, const std::string& user, const std::string& target, const std::string& msg);
+	std::string RPL_NOTOPIC(std::string& nick, const std::string& channel_name);
+	std::string RPL_TOPIC(std::string& nick, const std::string& channel_name, const std::string& topic);
+	std::string RPL_TOPICCHANGE(const std::string& nick, const std::string& user, const std::string& channel_name, const std::string& topic);
 }
+
 #endif

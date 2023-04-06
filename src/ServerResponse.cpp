@@ -135,7 +135,6 @@ namespace irc
 		return std::string(":") + SERVERNAME +  " 404 " + nick + " " + channel_name + " :Cannot send to channel\r\n";
 	}
 
-
 	std::string ERR_CHANOPRIVSNEEDED(std::string& nick, const std::string& channel_name)
 	{
 		std::cout << RED << nick << " tried changing mode for " << channel_name << " but did not have op permissions!" << RESET << "\n";
@@ -165,6 +164,12 @@ namespace irc
 		return std::string(":") + nick + "!" + user + "@" + HOST + " PRIVMSG " + target + " :" + msg + "\r\n";
 	}
 
+	std::string	RPL_NOTICE(const std::string& nick, const std::string& user, const std::string& target, const std::string& msg)
+	{
+		std::cout << GREEN << nick << " send message " << msg + " to " + target +  "!" << RESET << "\n";
+		return std::string(":") + nick + "!" + user + "@" + HOST + " NOTICE " + target + " :" + msg + "\r\n";
+	}
+
 	std::string ERR_USERONCHANNEL(std::string& nick, const std::string& channel_name, const std::string& target)
 	{
 		std::cout << RED << nick << " inviting " << target << " to " << channel_name << " but he was already on channel!" << RESET << "\n";
@@ -182,10 +187,33 @@ namespace irc
 		std::cout << GREEN << target << " has been invited " << " to " << channel_name << " by " << nick << "!" << RESET << "\n";
 		return std::string(":") + nick + "!" + user + "@" + HOST + " INVITE " + target + " :" + channel_name + "\r\n";
 	}
+
+	std::string ERR_INVITEONLYCHAN(std::string& nick, const std::string& channel_name)
+	{
+		std::cout << RED << nick << " tried joining " << channel_name << " but he was not invited!" << RESET << "\n";
+		return std::string(":") + SERVERNAME + " 473 " + nick + " " + channel_name + " : Cannot join channel (+i) - you must be invited\r\n";
+	}
+
+	std::string RPL_NOTOPIC(std::string& nick, const std::string& channel_name)
+	{
+		std::cout << GREEN << nick << " requested the topic of " << channel_name << " but no topic was set!" << RESET << "\n";
+		return std::string(":") + SERVERNAME + " 331 " + nick + " " + channel_name + " :No topic is set\r\n";
+	}
+
+	std::string RPL_TOPIC(std::string& nick, const std::string& channel_name, const std::string& topic)
+	{
+		std::cout << GREEN << nick << " requested the topic of " << channel_name << ": " << topic << "!" << RESET << "\n";
+		return std::string(":") + SERVERNAME + " 332 " + nick + " " + channel_name + " :" + topic + "\r\n";
+	}
+
+	std::string RPL_TOPICCHANGE(const std::string& nick, const std::string& user, const std::string& channel_name, const std::string& topic)
+	{
+		std::cout << GREEN << nick << " set the topic of " << channel_name << " to " << topic << "!" << RESET << "\n";
+		return std::string(":") + nick + "!" + user + "@" + HOST + " TOPIC " + channel_name + " :" + topic + "\r\n";
+	}
 }
 
 
-// #define RPL_PING(src, token)								":" + src + " PONG " + src + " :" + token + "\r\n"
 // #include <iostream>
 // #include <string>
 // #include <cstdlib>
@@ -205,15 +233,9 @@ namespace irc
 // #define ERR_CHANNELISFULL(source, channel)				"471 " + source + " " + channel + " :Cannot join channel (+l)"
 // ​
 // // NUMERIC REPLIES
-// #define	RPL_TOPIC(src, nick, channel, topic)				":" + src + " 332 " + nick + " " + channel + " :" + topic + "\r\n"
-// #define RPL_NOTOPIC(src, nick, channel)						":" + src + " 331 " + nick + " " + channel + " :No topic is set\r\n"
 // ​
 // // COMMAND REPLIES
-// #define RPL_PRIVMSG(src_nick, src_usr, src_host, dis_nick, msg)		":" + src_nick + "!" + src_usr + "@" + src_host + " PRIVMSG " + dis_nick + " :" + msg + "\r\n"
-// #define RPL_NOTICE(src_nick, src_usr, src_host, dis_nick, msg)		":" + src_nick + "!" + src_usr + "@" + src_host + " NOTICE " + dis_nick + " :" + msg + "\r\n"
 // #define RPL_QUIT(src_nick, src_usr, src_host)						":" + src_nick + "!" + src_usr + "@" + src_host + " QUIT :Client Quit \r\n"
-// #define RPL_TOPICCHANGE(src_nick, src_usr, src_host, channel, topic)":" + src_nick + "!" + src_usr + "@" + src_host + " TOPIC " + channel + " :" + topic + "\r\n"
-// ​
 // #define RPL_KICK(source, channel, target, reason)					":" + source + " KICK " + channel + " " + target + " :" + reason
 // ​
 // std::vector<std::string>	ft_split(const char buffer[1000], std::string delim);

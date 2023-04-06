@@ -139,6 +139,27 @@ namespace irc
 			return SendMessage(message);
 		if (message.command == "INVITE")
 			return InviteClient(message);
+		if (message.command == "TOPIC")
+			return SetTopic(message);
+	}
+
+	void ClientConnection::SetTopic(Message& message)
+	{
+		if (message.middle_params.empty())
+			return output_buffer_.Append(ERR_NEEDMOREPARAMS(message.command));
+		Channel* channel = Server::GetChannel(message.middle_params.front());
+		if (channel == nullptr)
+			return output_buffer_.Append(ERR_NOSUCHCHANNEL(user.nick, message.middle_params.front()));
+		if (message.middle_params.size() == 1)
+		{
+			if (channel->GetTopic().empty())
+				return output_buffer_.Append(RPL_NOTOPIC(user.nick, message.middle_params.front()));
+			return output_buffer_.Append(RPL_TOPIC(user.nick, message.middle_params.front(), channel->GetTopic()));
+		}
+		if ((CHANTOPIC | CHANMOD) & channel->GetMode() && !channel->IsOperator(this))
+			return output_buffer_.Append(ERR_CHANOPRIVSNEEDED(user.nick, message.middle_params.front()));
+		channel->SetTopic(message.middle_params[1]);
+		channel->Broadcast(RPL_TOPICCHANGE(user.nick, user.username, message.middle_params.front(), message.middle_params[1]));
 	}
 
 	void ClientConnection::InviteClient(Message& message)
@@ -178,10 +199,10 @@ namespace irc
 			else
 				return channel->Broadcast(RPL_PRIVMSG(user.nick, user.username, message.middle_params.front(), message.trailing), user.nick);
 		}
-		Connection* target = Server::GetConnection(message.middle_params.front());
+		ClientConnection* target = Server::GetConnection(message.middle_params.front());
 		if (target == nullptr)
 			return output_buffer_.Append(ERR_NOTONCHANNEL(user.nick, message.middle_params.front()));
-		output_buffer_.Append(RPL_PRIVMSG(user.nick, user.username, message.middle_params.front(), message.trailing));
+		target->output_buffer_.Append(RPL_PRIVMSG(user.nick, user.username, message.middle_params.front(), message.trailing));
 	}
 
 	void ClientConnection::SendNotice(Message& message)
@@ -197,12 +218,12 @@ namespace irc
 				return ;
 			if ((channel->GetMode() & CHANMOD) == CHANMOD && !channel->IsOperator(this))
 				return ;
-			return channel->Broadcast(RPL_PRIVMSG(user.nick, user.username, message.middle_params.front(), message.trailing), user.nick);
+			return channel->Broadcast(RPL_NOTICE(user.nick, user.username, message.middle_params.front(), message.trailing), user.nick);
 		}
 		Connection* target = Server::GetConnection(message.middle_params.front());
 		if (target == nullptr)
 			return ;
-		output_buffer_.Append(RPL_PRIVMSG(user.nick, user.username, message.middle_params.front(), message.trailing));
+		output_buffer_.Append(RPL_NOTICE(user.nick, user.username, message.middle_params.front(), message.trailing));
 	}
 
 	void ClientConnection::PartChannel(Message& message)
@@ -364,6 +385,11 @@ namespace irc
 					channel = Server::AddChannel(channel_name);
 					channel->AddConnection(this, OPERATOR);
 				}
+				else if ((channel->GetMode() & CHANINVITE) == CHANINVITE && !channel->IsInvited(this))
+				{
+					output_buffer_.Append(ERR_INVITEONLYCHAN(user.nick, channel_name));
+					continue;
+				}
 				else
 					channel->AddConnection(this, REGISTERED);
 				channel_list.push_back(channel->GetName());
@@ -371,8 +397,7 @@ namespace irc
 				output_buffer_.Append(RPL_NAMREPLY(user.nick, channel->GetName(), channel->GetRegisteredString()));
 				output_buffer_.Append(RPL_ENDOFNAMES(user.nick, channel->GetName()));
 			}
-			//hier muss dan invite hin;
-			//topic muss dann heir noch hin;
+
 		}
 	}
 

@@ -26,7 +26,8 @@ namespace irc
 		private:
 			unsigned char								mode_;
 			std::string 								name_;
-			std::vector<std::string>					invited_;				
+			std::string									topic_;
+			std::vector<std::string>					invited_;			
 			std::map<ClientConnection *, unsigned char>	registered_;
 		public:
 			Channel(std::string name);
@@ -44,6 +45,8 @@ namespace irc
 			void TakeOperator(ClientConnection* connection);
 			void GiveInvis(ClientConnection* connection);
 			void TakeInvis(ClientConnection* connection);
+			void SetTopic(std::string& topic);
+			std::string GetTopic();
 			void SetChannelMode(std::string mode);
 			void SetRegisteredMode(ClientConnection* target, std::string& mode);
 			std::string GetRegisteredString(bool include_invis = true);
