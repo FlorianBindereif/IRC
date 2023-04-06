@@ -145,6 +145,26 @@ namespace irc
 			return KickMember(message);
 		if (message.command == "OPER")
 			return MakeOperator(message);
+		if (message.command == "QUIT")
+			return LeaveServer(message);
+	}
+
+
+	void ClientConnection::LeaveServer(Message& message)
+	{
+		for (std::vector<std::string>::size_type i = 0; i < channel_list.size(); i++)
+		{
+			Channel* channel = Server::GetChannel(channel_list[i]);
+			if (channel != nullptr)
+			{
+				if (message.middle_params.empty())
+					channel->Broadcast(RPL_QUIT(user.nick, user.username));
+				else
+					channel->Broadcast(RPL_QUIT(user.nick, user.username, message.middle_params.front()));
+				channel->RemoveConnection(this);
+				state = DISCONNECTED;
+			}
+		}
 	}
 
 	void ClientConnection::MakeOperator(Message& message)
@@ -227,7 +247,7 @@ namespace irc
 			return output_buffer_.Append(ERR_USERONCHANNEL(user.nick, message.middle_params[1], target->user.nick));
 		output_buffer_.Append(RPL_INVITING(user.nick, message.middle_params[1], target->user.nick));
 		target->output_buffer_.Append(RPL_INVITED(user.nick, user.username, message.middle_params[1],target->user.nick));
-		target->channel_list.push_back(message.middle_params[1]);
+		channel->GiveInvite(target);
 	}
 
 	void ClientConnection::SendMessage(Message& message)

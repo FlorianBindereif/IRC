@@ -228,17 +228,15 @@ namespace irc
 		std::cout << GREEN << nick << " kicked " << target << " of " << channel_name << " because: " << reason << "!" << RESET << "\n";
 		return std::string(":") +  nick + "!" + user + "@" + HOST + " KICK " + channel_name + " " + target + " :" + reason + "\r\n";
 	}
+
+	std::string RPL_QUIT(const std::string& nick, const std::string& user, const std::string reason)
+	{
+		std::cout << GREEN << nick << " left the server because of " << reason << "!" << RESET << "\n";
+		return std::string(":") + nick + "!" + user + "@" + HOST + " " + "QUIT :" + reason + "\r\n";
+	}
+
 }
 
-
-// #include <iostream>
-// #include <string>
-// #include <cstdlib>
-// #include <cstdio>
-// #include <string.h>
-// #include <vector>
-// /* might need to add \r\n at the end of each reply !*/
-// ​
 // //ERROR REPLIES
 // #define ERR_ALREADYLOGEDIN(source)						":" + source + " 460 " ":Already logged in\r\n"
 // #define ERR_ERRONEUSNICKNAME(nick)						"432 " + nick + ":Erroneous nickname"
@@ -246,7 +244,6 @@ namespace irc
 // #define ERR_UNKNOWNCOMMAND(source, command)				"421 " + source + " " + command + " :Unknown command"
 // #define ERR_TOOMANYCHANNELS(source, channel)			"405 " + source + " " + channel + " :You have joined too many channels"
 // #define ERR_BADCHANNELKEY(source, channel)				"475 " + source + " " + channel + " :Cannot join channel (+k)"
-// #define ERR_USERNOTINCHANNEL(source, nickname, channel)	"441 " + source + " " + nickname + " " + channel + " :They aren't on that channel"
 // #define ERR_CHANNELISFULL(source, channel)				"471 " + source + " " + channel + " :Cannot join channel (+l)"
 // ​
 // // NUMERIC REPLIES

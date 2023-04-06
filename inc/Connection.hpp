@@ -81,6 +81,8 @@ namespace irc
 			void 			SetTopic(Message& message);
 			void			KickMember(Message& message);
 			void			MakeOperator(Message& message);
+			void			LeaveServer(Message& message);
+
 
 	};
 
