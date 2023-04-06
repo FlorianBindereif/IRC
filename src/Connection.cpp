@@ -394,10 +394,11 @@ namespace irc
 					channel->AddConnection(this, REGISTERED);
 				channel_list.push_back(channel->GetName());
 				channel->Broadcast(RPL_JOIN(user.nick, user.username, channel_name));
+				if (!channel->GetTopic().empty())
+					output_buffer_.Append(RPL_TOPIC(user.nick, channel->GetName(), channel->GetTopic()));
 				output_buffer_.Append(RPL_NAMREPLY(user.nick, channel->GetName(), channel->GetRegisteredString()));
 				output_buffer_.Append(RPL_ENDOFNAMES(user.nick, channel->GetName()));
 			}
-
 		}
 	}
 
