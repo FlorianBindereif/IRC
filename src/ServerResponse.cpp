@@ -115,13 +115,18 @@ namespace irc
 		return std::string(":") + SERVERNAME " 401 " + nick + " " + channel_name + " :No such nick/channel\r\n";
 	}
 
-	#define ERR_NOSUCHNICK(src, nick, channel)								":" + src + " 401 " + nick + " " + channel + " :No such nick/channel\r\n"
-
 	std::string RPL_SETMODECLIENT(const std::string& nick, const std::string& user, const std::string& channel_name, const std::string& mode, const std::string& target)
 	{
 		std::cout << GREEN << nick << " adjusted the mode of " << target << " by " << mode << RESET << "\n";
 		return std::string(":") + nick + "!" + user + "@" + HOST + " MODE " + channel_name + " " + mode + " " + target + "\r\n";
 	}
+
+	std::string RPL_YOUREOPER(const std::string& nick, const std::string& target)
+	{
+		std::cout << GREEN << nick << " make " << target << " a server operator!" << RESET << "\n";
+		return std::string(":") + SERVERNAME + " 381 " + "PASS :You are now an IRC operator\r\n";
+	}
+
 	
 	std::string RPL_PART(const std::string& nick, const std::string& user, const std::string& channel_name, const std::string reason)
 	{

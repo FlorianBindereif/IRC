@@ -143,10 +143,23 @@ namespace irc
 			return SetTopic(message);
 		if (message.command == "KICK")
 			return KickMember(message);
+		if (message.command == "OPER")
+			return MakeOperator(message);
 	}
 
+	void ClientConnection::MakeOperator(Message& message)
+	{
+		if (message.middle_params.size() < 2)
+			return output_buffer_.Append(ERR_NEEDMOREPARAMS(message.command));
+		ClientConnection* target = Server::GetConnection(message.middle_params.front());
+		if (target == nullptr)
+			return output_buffer_.Append(ERR_NOSUCHNICK(user.nick));
+		if (message.middle_params[1] != SUDOPWD)
+			return output_buffer_.Append(ERR_PASSWDMISMATCH());
+		target->mode_ |= OPERATOR;
+		output_buffer_.Append(RPL_YOUREOPER(user.nick, target->user.nick));
+	}
 
-	// use channel->IsRegistered() statt InChannel
 	void ClientConnection::KickMember(Message& message)
 	{
 		if (message.middle_params.size() < 2)
@@ -310,22 +323,21 @@ namespace irc
 			std::string mode = CleanModeString_(message.middle_params[1], "io");
 			if (mode.empty())
 				return output_buffer_.Append(ERR_UMODEUNKNOWNFLAG(user.nick));
-			// tilde implementieren
 			bool add;
 			for (std::string::size_type i = 0; i < mode.size(); i++)
 			{
 				if (mode[i] == '-')
 					add = false;
-				else if (mode[i] == '+')
+				if(mode[i] == '+')
 					add = true;
-				else if (mode[i] == 'i' && add)
-					mode_ |= 0b01;
-				else if (mode[i] == 'i' && !add)
-					mode_ &= 0b10;
-				else if (mode[i] == 'o' && add)
-					mode_ |= 0b10;
-				else if (mode[i] == 'o' && !add)
-					mode_ &= 0b01;
+				if (mode[i] == 'i' && add)
+					mode_ |= SERVINVIS;
+				if (mode[i] == 'i' && !add)
+					mode_ &= ~SERVINVIS;
+				if (mode[i] == 'o' && add)
+					mode_ |= SERVOP;
+				if (mode[i] == 'o' && !add)
+					mode_ &= ~SERVOP;
 			}
 		}
 		output_buffer_.Append(RPL_MODEUSER(user.nick, GetModeString_()));

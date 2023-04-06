@@ -21,6 +21,9 @@ namespace irc
 	//Password required Client to connect to the Server
 	#define PASSWORD "pwd"
 
+	//Password required Client to connect to the Server
+	#define SUDOPWD "simsalabim"
+
 	//Default Port the Server will bind to
 	#define PORT 6060
 
