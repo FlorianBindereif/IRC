@@ -6,6 +6,7 @@
 #include "../inc/config.hpp"
 #include "../inc/Utils.hpp"
 #include "../inc/Channel.hpp"
+#include "../inc/Bot.hpp"
 
 #include <iostream>
 #include <string>
@@ -145,6 +146,8 @@ namespace irc
 			return KickMember(message);
 		if (message.command == "OPER")
 			return MakeOperator(message);
+		if (message.command == "NOTICE")
+			return SendNotice(message);
 		if (message.command == "QUIT")
 			return LeaveServer(message);
 		output_buffer_.Append(ERR_UNKNOWNCOMMAND(user.nick, message.command));
@@ -261,10 +264,11 @@ namespace irc
 				return output_buffer_.Append(ERR_NOSUCHNICK(user.nick, message.middle_params.front()));
 			if (!channel->IsRegistered(this))
 				return output_buffer_.Append(ERR_CANNOTSENDTOCHAN(user.nick, message.middle_params.front()));
-			if ((channel->GetMode() & CHANMOD) == CHANMOD && !channel->IsOperator(this))
+			if ((channel->GetMode() & CHANMOD) && !channel->IsOperator(this))
 				return output_buffer_.Append(ERR_CHANOPRIVSNEEDED(user.nick, message.middle_params.front()));
-			else
-				return channel->Broadcast(RPL_PRIVMSG(user.nick, user.username, message.middle_params.front(), message.trailing), user.nick);
+			if ((channel->GetMode() & CHANBOT) && message.trailing.front() == '!')
+				return output_buffer_.Append(RPL_BOT(user.nick, channel->GetName(), BlackJackBot(this, message)));
+			return channel->Broadcast(RPL_PRIVMSG(user.nick, user.username, message.middle_params.front(), message.trailing), user.nick);
 		}
 		ClientConnection* target = Server::GetConnection(message.middle_params.front());
 		if (target == nullptr)
@@ -552,8 +556,7 @@ namespace irc
 
 	void ServerConnection::Send() {}
 
-	ClientConnection::ClientConnection(int fd): Connection(fd), mode_(0) { }
-
+	ClientConnection::ClientConnection(int fd): Connection(fd), mode_(0), hands(0,0) { }
 	ClientConnection::~ClientConnection() { }
 
 	void ClientConnection::Send()

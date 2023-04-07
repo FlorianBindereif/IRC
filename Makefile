@@ -17,7 +17,8 @@ SRCS        := 	main.cpp \
 				Channel.cpp \
 				Parser.cpp \
 				ServerResponse.cpp \
-				Utils.cpp
+				Utils.cpp \
+				Bot.cpp
 
 ODIR        := obj
 OBJS        := $(SRCS:%.cpp=$(ODIR)/%.o)

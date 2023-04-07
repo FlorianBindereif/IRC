@@ -2,6 +2,7 @@
 #include "../inc/config.hpp"
 #include "../inc/Print.hpp"
 #include <iostream>
+#include <sstream>
 
 namespace irc
 {
@@ -127,7 +128,6 @@ namespace irc
 		return std::string(":") + SERVERNAME + " 381 " + "PASS :You are now an IRC operator\r\n";
 	}
 
-	
 	std::string RPL_PART(const std::string& nick, const std::string& user, const std::string& channel_name, const std::string reason)
 	{
 		std::cout << GREEN << nick << " just parted channel " << channel_name + " because of: " + reason + "!" << RESET << "\n";
@@ -240,8 +240,15 @@ namespace irc
 		std::cout << RED << nick << " tried executing unknown command: " << command << "!" << RESET << "\n";
 		return std::string(":") + SERVERNAME + " 421 " + nick + " " + command + " :Unknown command\r\n";
 	}
-
-
+	std::string RPL_BOT(const std::string& nick, const std::string& channel_name, const std::string& msg)
+	{
+		std::cout << GREEN << nick << " requested a bot on " << channel_name << "!" << RESET << "\n";
+		std::string partial_msg, total_msg;
+		std::istringstream iss(msg);
+		while(getline(iss, partial_msg, '\n'))
+			total_msg = total_msg + ":BLACKJACKBOT!BOT@" + SERVERNAME + " NOTICE " + channel_name + " :" + partial_msg + "\r\n";
+		return total_msg;
+	}
 }
 
 // //ERROR REPLIES

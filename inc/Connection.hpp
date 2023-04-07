@@ -18,6 +18,14 @@ namespace irc
 		REGISTERED
 	};
 
+	struct Blackjack
+	{
+		short player_hand;
+		short dealer_hand;
+		Blackjack(short player_hand, short dealer_hand):
+		player_hand(player_hand), dealer_hand(dealer_hand) {}
+	};
+
 	class Connection
 	{
 		protected:
@@ -51,6 +59,7 @@ namespace irc
 			Buffer						input_buffer_;
 			Buffer						output_buffer_;
 			std::vector<std::string>	channel_list;
+			Blackjack					hands;
 		public:
 							ClientConnection();
 							ClientConnection(int fd);
@@ -82,7 +91,7 @@ namespace irc
 			void			KickMember(Message& message);
 			void			MakeOperator(Message& message);
 			void			LeaveServer(Message& message);
-
+			std::string 	ExecuteBot(Message& message);
 
 	};
 

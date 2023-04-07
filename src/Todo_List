@@ -1,15 +1,3 @@
-- Operator - kick,invite,(part,join)     @fbindere
-- User - part,join                       fbindere
-- direct messages
-
-- server sending message to weechat depending on executed command (key numbers on actions)
-    E.g.
-    RPL_TOPIC(src, nick, channel, topic)				":" + src + " 332 " + nick + " " + channel + " :" + topic + "\r\n"
-
-- hadle SendCapabilities or ignore but then delete -> L. 171 Server.cpp
-
-- main -> comments
-
 - //Am Ende wieder einkommentieren -> L. 81 Parser.cpp
 
 - Parser errorhandling commandlength > messagelength -> L.107 connection.cpp
@@ -25,5 +13,7 @@ hostname über getnameinfo holen.
 handdel nickname policy
 fix notice 
 invite: inviting people in the channel already (ignore it or say they are already in); inviting people who left the channel is broken.
+
 naming convention for private/public in connection
-killing the client with SIGKILL (kill -9 pid) ==> invalid free bitch, cuz u do not handel PULLHUP ->call quit fct
+
+killing the client with SIGKILL (kill -9 pid) ==> invalid free bitch, cuz u do not handel PULLHUP -> call quit fct

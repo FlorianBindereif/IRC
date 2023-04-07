@@ -17,7 +17,7 @@
 #define CHANMOD 0b0001
 #define CHANINVITE 0b0010
 #define CHANTOPIC 0b0100
-#define CHANBAN 0b1000
+#define CHANBOT 0b1000
 
 namespace irc
 {
