@@ -217,7 +217,7 @@ namespace irc
 		Channel* channel = Server::GetChannel(message.middle_params.front());
 		if (channel == nullptr)
 			return output_buffer_.Append(ERR_NOSUCHCHANNEL(user.nick, message.middle_params.front()));
-		if (message.middle_params.size() == 1)
+		if (message.trailing.empty())
 		{
 			if (channel->GetTopic().empty())
 				return output_buffer_.Append(RPL_NOTOPIC(user.nick, message.middle_params.front()));
