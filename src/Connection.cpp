@@ -162,8 +162,8 @@ namespace irc
 				else
 					channel->Broadcast(RPL_QUIT(user.nick, user.username, message.middle_params.front()));
 				channel->RemoveConnection(this);
-				state = DISCONNECTED;
 			}
+			CloseConnection();
 		}
 	}
 

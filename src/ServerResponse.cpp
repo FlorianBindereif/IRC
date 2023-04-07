@@ -255,8 +255,4 @@ namespace irc
 // // NUMERIC REPLIES
 // ​
 // // COMMAND REPLIES
-// #define RPL_QUIT(src_nick, src_usr, src_host)						":" + src_nick + "!" + src_usr + "@" + src_host + " QUIT :Client Quit \r\n"
-// ​
-// std::vector<std::string>	ft_split(const char buffer[1000], std::string delim);
-// ​
 // #endif
