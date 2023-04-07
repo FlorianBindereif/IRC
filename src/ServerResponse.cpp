@@ -153,7 +153,7 @@ namespace irc
 
 	std::string ERR_NOTONCHANNEL(const std::string nick, const std::string channel_name)
 	{
-		std::cout << RED << nick << "tried using command on channel he isn't registered to!";
+		std::cout << RED << nick << "tried using command on channel he isn't registered to!" << RESET << "\n";
 		return std::string(":") + SERVERNAME + + " 401 " + nick + " " + channel_name + " :You're not on that channel \r\n";
 	}
 

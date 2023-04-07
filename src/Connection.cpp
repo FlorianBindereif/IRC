@@ -530,26 +530,24 @@ namespace irc
 	{
 		if (message.middle_params.front().empty())
 			return output_buffer_.Append(ERR_NONICKNAMEGIVEN());
-		if (Server::CheckNickAvailability(message.middle_params.front()))
+		if (!Server::CheckNickAvailability(message.middle_params.front()))
+			return output_buffer_.Append(ERR_NICKNAMEINUSE(message.middle_params.front()));
+		if (state == REGISTERED)
 		{
-			if (state == REGISTERED)
+			for (std::vector<std::string>::size_type i = 0; i < channel_list.size(); i++)
 			{
-				for (std::vector<std::string>::size_type i = 0; i < channel_list.size(); i++)
-				{
-					Channel* channel = Server::GetChannel(channel_list[i]);
-					if (channel != nullptr)
-						channel->Broadcast(RPL_NICKCHANGE(user.nick, message.middle_params.front(), user.username));
-				}
+				Channel* channel = Server::GetChannel(channel_list[i]);
+				if (channel != nullptr)
+					channel->Broadcast(RPL_NICKCHANGE(user.nick, message.middle_params.front(), user.username), user.nick);
 			}
-			else if (!user.username.empty())
-			{
-				state = REGISTERED;
-				output_buffer_.Append(RPL_WELCOME(message.middle_params.front(), user.username));
-			}
-			user.nick = message.middle_params.front();
+			output_buffer_.Append(RPL_NICKCHANGE(user.nick, message.middle_params.front(), user.username));
 		}
-		else
-			output_buffer_.Append(ERR_NICKNAMEINUSE(message.middle_params.front()));
+		else if (!user.username.empty())
+		{
+			state = REGISTERED;
+			output_buffer_.Append(RPL_WELCOME(message.middle_params.front(), user.username));
+		}
+		user.nick = message.middle_params.front();
 	}
 
 	void ServerConnection::Send() {}
