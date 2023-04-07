@@ -19,3 +19,11 @@
 hostname über getnameinfo holen.
 
 //output_buffer_ und input_buffer_ in public umbennen.
+
+
+/just ignore it when i try to /nick my_nick
+handdel nickname policy
+fix notice 
+invite: inviting people in the channel already (ignore it or say they are already in); inviting people who left the channel is broken.
+naming convention for private/public in connection
+killing the client with SIGKILL (kill -9 pid) ==> invalid free bitch, cuz u do not handel PULLHUP ->call quit fct
