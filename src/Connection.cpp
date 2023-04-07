@@ -451,10 +451,12 @@ namespace irc
 					channel = Server::AddChannel(channel_name);
 					channel->AddConnection(this, OPERATOR);
 				}
-				else if ((channel->GetMode() & CHANINVITE) == CHANINVITE && !channel->IsInvited(this))
+				else if (channel->IsRegistered(this))
+					continue;
+				else if ((channel->GetMode() & CHANINVITE) && !channel->IsInvited(this))
 				{
 					output_buffer_.Append(ERR_INVITEONLYCHAN(user.nick, channel_name));
-					continue;
+					continue ;
 				}
 				else
 					channel->AddConnection(this, REGISTERED);
