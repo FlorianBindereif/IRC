@@ -5,7 +5,7 @@
 namespace irc
 {
 	bool	ValidChannelName(std::string& name);
-	int		RandomCard();
+	bool	ValidNickName(std::string& name);
 }
 
 #endif

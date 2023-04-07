@@ -12,4 +12,23 @@ namespace irc
 			return false;
 		return true;
 	}
+
+	bool ValidNickName(std::string& name)
+	{
+		std::string specials("[]\\^_`{|}");
+
+		for (std::string::size_type i = 0; i < name.size(); i++)
+		{
+			if (i == 0)
+			{
+				if (!std::isalpha(name[i]) && specials.find_first_of(name[i]) == std::string::npos)
+					return false;
+			}
+			else if (!std::isalnum(name[i])
+			&& specials.find_first_of(name[i]) == std::string::npos 
+			&& name[i] != '-')
+			return false;
+		}
+		return name.size() < 9;
+	}
 }
