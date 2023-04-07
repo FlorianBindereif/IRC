@@ -225,8 +225,8 @@ namespace irc
 		}
 		if ((CHANTOPIC | CHANMOD) & channel->GetMode() && !channel->IsOperator(this))
 			return output_buffer_.Append(ERR_CHANOPRIVSNEEDED(user.nick, message.middle_params.front()));
-		channel->SetTopic(message.middle_params[1]);
-		channel->Broadcast(RPL_TOPICCHANGE(user.nick, user.username, message.middle_params.front(), message.middle_params[1]));
+		channel->SetTopic(message.trailing);
+		channel->Broadcast(RPL_TOPICCHANGE(user.nick, user.username, message.middle_params.front(), message.trailing));
 	}
 
 	void ClientConnection::InviteClient(Message& message)
