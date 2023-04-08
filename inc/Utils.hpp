@@ -2,6 +2,7 @@
 #define UTILS_HPP
 
 #include <string>
+
 namespace irc
 {
 	bool	ValidChannelName(std::string& name);

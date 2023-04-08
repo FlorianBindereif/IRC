@@ -3,9 +3,7 @@
 #include "../inc/Print.hpp"
 #include "../inc/config.hpp"
 
-
 namespace irc
-
 {
 	std::string MessageParser::to_parse_;
 
@@ -87,8 +85,6 @@ namespace irc
 
 	std::ostream& operator<<(std::ostream& os, const Message& message)
 	{
-		//Am Ende wieder einkommentieren
-
 		// os << "PREFIX:" << "\n";
 		// os << "nick:\t\t" << message.prefix.name << "\n";
 		// os << "user:\t\t" << message.prefix.user << "\n";
