@@ -62,7 +62,6 @@ namespace irc
 			polls_[i].revents = 0;
 			if (connections_[i]->GetStatus() == DISCONNECTED)
 			{
-				std::cout << GREEN << "User " << connections_[i]->GetFd() << " disconnected" << RESET << "\n";
 				delete connections_[i];
 				connections_.erase(connections_.begin() + i);
 				polls_.erase(polls_.begin() + i);

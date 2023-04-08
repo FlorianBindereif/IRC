@@ -1,6 +1,8 @@
 #include "../inc/Parser.hpp"
 #include <sstream>
 #include "../inc/Print.hpp"
+#include "../inc/config.hpp"
+
 
 namespace irc
 
@@ -9,14 +11,15 @@ namespace irc
 
 	Message MessageParser::Parse(std::string &to_parse)
 	{
+		if (to_parse.length() > MESSAGE_LENGTH)
+			throw std::invalid_argument("Invalid Messagelength: exceeds allowed max!");
 		Message message;
-
-		//vielleicht lieber den orginal string mitgeben
 		to_parse_ = to_parse;
 		MessageParser::ParsePrefix_(message.prefix);
 		MessageParser::ParseCommand_(message.command);
 		MessageParser::ParseParams_(message.middle_params, message.trailing);
 		to_parse_.clear();
+		std::cout << message << std::endl;
 		return message;
 	}
 

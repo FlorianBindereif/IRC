@@ -107,12 +107,14 @@ namespace irc
 
 	void ClientConnection::ExecuteMessage(std::string command)
 	{
-		//parser still needs error management
-		// if (command.length() > MESSAGE_LENGTH) {}
 		Message message;
-
-		message = MessageParser::Parse(command);
-		std::cout << message << std::endl;
+		try
+		{ message = MessageParser::Parse(command); }
+		catch(const std::exception& error)
+		{ 
+			std::cerr << "Parser error: " << error.what() << '\n';
+			return ;
+		}
 
 		if (state == DISCONNECTED)
 			return ;

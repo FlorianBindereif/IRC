@@ -6,7 +6,6 @@
 #include <map>
 #include "Connection.hpp"
 
-
 //Registered Modes
 #define NOTMEMBER 0b0000
 #define MEMBER 0b0001
