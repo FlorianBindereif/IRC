@@ -27,8 +27,8 @@ namespace irc
 	int Connection::GetFd() const
 	{ return socket_.GetFd(); }
 
-	void Connection::CloseConnection()
-	{ state = DISCONNECTED ;}
+	void ClientConnection::CloseConnection()
+	{ LeaveServer(); }
 
 	ConnectionState& Connection::GetStatus()
 	{ return state; }
@@ -39,6 +39,8 @@ namespace irc
 		if (listen(GetFd(), BACKLOG) == -1)
 			throw std::runtime_error("listen(GetFd(), BACKLOG) returned ERROR");
 	}
+
+	void ServerConnection::CloseConnection() {};
 
 	ServerConnection::ServerConnection() {};
 
@@ -149,25 +151,22 @@ namespace irc
 		if (message.command == "NOTICE")
 			return SendNotice(message);
 		if (message.command == "QUIT")
-			return LeaveServer(message);
+			return LeaveServer();
 		output_buffer_.Append(ERR_UNKNOWNCOMMAND(user.nick, message.command));
 	}
 
-	void ClientConnection::LeaveServer(Message& message)
+	void ClientConnection::LeaveServer()
 	{
 		for (std::vector<std::string>::size_type i = 0; i < channel_list.size(); i++)
 		{
 			Channel* channel = Server::GetChannel(channel_list[i]);
 			if (channel != nullptr)
 			{
-				if (message.middle_params.empty())
-					channel->Broadcast(RPL_QUIT(user.nick, user.username));
-				else
-					channel->Broadcast(RPL_QUIT(user.nick, user.username, message.middle_params.front()));
+				channel->Broadcast(RPL_QUIT(user.nick, user.username));
 				channel->RemoveConnection(this);
 			}
-			CloseConnection();
 		}
+		state = DISCONNECTED;
 	}
 
 	void ClientConnection::MakeOperator(Message& message)

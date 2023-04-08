@@ -238,10 +238,10 @@ namespace irc
 		return std::string(":") +  nick + "!" + user + "@" + HOST + " KICK " + channel_name + " " + target + " :" + reason + "\r\n";
 	}
 
-	std::string RPL_QUIT(const std::string& nick, const std::string& user, const std::string reason)
+	std::string RPL_QUIT(const std::string& nick, const std::string& user)
 	{
-		std::cout << GREEN << nick << " left the server because of " << reason << "!" << RESET << "\n";
-		return std::string(":") + nick + "!" + user + "@" + HOST + " " + "QUIT :" + reason + "\r\n";
+		std::cout << GREEN << nick << " left the server!" << RESET << "\n";
+		return std::string(":") + nick + "!" + user + "@" + HOST + " " + "QUIT :" + "Goodbye!" + "\r\n";
 	}
 
 	std::string ERR_UNKNOWNCOMMAND(const std::string& nick, const std::string& command)

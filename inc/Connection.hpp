@@ -44,8 +44,8 @@ namespace irc
 		public:	
 			int					GetFd() const;
 			ConnectionState&	GetStatus();
-			void				CloseConnection();
 		public:	
+			virtual void		CloseConnection() = 0;
 			virtual void		Receive() = 0;
 			virtual void		Send() = 0;
 	};
@@ -73,6 +73,7 @@ namespace irc
 		public:
 			void 			Receive();
 			void 			Send();
+			void			CloseConnection();
 		public:
 			void			ExecuteMessage(std::string command);
 			void 			SendCapabilities(Message& message);
@@ -90,8 +91,8 @@ namespace irc
 			void 			SetTopic(Message& message);
 			void			KickMember(Message& message);
 			void			MakeOperator(Message& message);
-			void			LeaveServer(Message& message);
 			std::string 	ExecuteBot(Message& message);
+			void			LeaveServer();
 
 	};
 
@@ -103,6 +104,7 @@ namespace irc
 		public:
 			void 			Receive();
 			void 			Send();
+			void			CloseConnection();
 		public:
 			void 			Bind(int port);
 			void 			Listen();
