@@ -4,6 +4,7 @@
 #include <string>
 #include "Parser.hpp"
 #include "Connection.hpp"
+#include "ClientConnection.hpp"
 
 namespace irc
 {

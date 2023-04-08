@@ -4,7 +4,8 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "Connection.hpp"
+
+#include "ClientConnection.hpp"
 
 //Registered Modes
 #define NOTMEMBER 0b0000

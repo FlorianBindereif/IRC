@@ -11,9 +11,11 @@ LDLIBS      :=
 VPATH       := src/
 SRCS        := 	main.cpp \
 				Connection.cpp \
-				Server.cpp \
 				Socket.cpp \
 				Buffer.cpp \
+				ServerConnection.cpp \
+				ClientConnection.cpp \
+				Server.cpp \
 				Channel.cpp \
 				Parser.cpp \
 				ServerResponse.cpp \

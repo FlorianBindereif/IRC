@@ -1,5 +1,6 @@
 #include "../inc/Server.hpp"
 #include "../inc/Print.hpp"
+#include "../inc/ServerConnection.hpp"
 
 namespace irc
 {
