@@ -40,7 +40,8 @@ namespace irc
 			throw std::runtime_error("listen(GetFd(), BACKLOG) returned ERROR");
 	}
 
-	void ServerConnection::CloseConnection() {};
+	void ServerConnection::CloseConnection()
+	{ };
 
 	ServerConnection::ServerConnection() {};
 
@@ -115,7 +116,6 @@ namespace irc
 			std::cerr << "Parser error: " << error.what() << '\n';
 			return ;
 		}
-
 		if (state == DISCONNECTED)
 			return ;
 		if (message.command == "PASS")
@@ -152,9 +152,19 @@ namespace irc
 			return MakeOperator(message);
 		if (message.command == "NOTICE")
 			return SendNotice(message);
+		if (message.command == "DIE")
+			return ShutdownServer(message);
 		if (message.command == "QUIT")
 			return LeaveServer();
 		output_buffer_.Append(ERR_UNKNOWNCOMMAND(user.nick, message.command));
+	}
+
+	void ClientConnection::ShutdownServer(Message& message)
+	{
+		if (mode_ & OPERATOR)
+			Server::ShutDown();
+		else
+			output_buffer_.Append(ERR_NOPRIVS(user.nick, message.command));
 	}
 
 	void ClientConnection::LeaveServer()

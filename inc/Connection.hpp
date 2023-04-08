@@ -92,6 +92,7 @@ namespace irc
 			void			KickMember(Message& message);
 			void			MakeOperator(Message& message);
 			std::string 	ExecuteBot(Message& message);
+			void			ShutdownServer(Message& message);
 			void			LeaveServer();
 
 	};

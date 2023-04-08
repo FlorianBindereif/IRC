@@ -10,6 +10,13 @@
 
 namespace irc
 {
+	enum ServerState
+	{
+		RUNNING,
+		SHUTDOWN,
+		RESTART,
+	};
+
 	class Server
 	{
 		private:
@@ -23,6 +30,7 @@ namespace irc
 			static std::vector<Connection *> 								connections_;
 			static std::map<std::string, Channel> 							channels_;
 			static std::string												server_password_;
+			static ServerState												server_state_;
 
 		private:
 						Server(const Server& other);
@@ -32,16 +40,16 @@ namespace irc
 		private:	
 			void		CleanUp_();
 		public:
-			void		Init(std::string password = PASSWORD, int port = PORT);
-			void		Run();
-
+			void						Run();
+			void						Init(std::string password = PASSWORD, int port = PORT);
+			ServerState 				GetState();
+			static void					ShutDown();
 			static void					AddConnection(ClientConnection* new_connection);
 			static ClientConnection* 	GetConnection(std::string& nick);
 			static Channel* 			GetChannel(std::string& channel_name);
 			static Channel*				AddChannel(std::string& channel_name);
 			static bool 				AuthenticatePassword(std::string& password);
 			static bool					CheckNickAvailability(std::string& nick);
-
 	};
 }
 

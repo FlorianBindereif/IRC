@@ -49,6 +49,7 @@ namespace irc
 	std::string ERR_UNKNOWNCOMMAND(const std::string& nick, const std::string& command);
 	std::string RPL_BOT(const std::string& nick, const std::string& channel_name, const std::string& msg);
 	std::string ERR_ERRONEUSNICKNAME(std::string& nick, std::string& wrong_nick);
+	std::string ERR_NOPRIVS(const std::string& nick, const std::string& command);
 
 }
 

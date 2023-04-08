@@ -29,7 +29,6 @@ namespace irc
 		std::string BlackJackBot(ClientConnection* client, Message& message)
 		{
 			std::stringstream output;
-			short card;
 			if (message.trailing == "!Blackjack")
 			{
 				if (client->hands.player_hand == 0)

@@ -7,6 +7,8 @@ namespace irc
 	std::vector<pollfd> Server::polls_;
 	std::map<std::string, Channel> Server::channels_;
 	std::string Server::server_password_;
+	ServerState Server::server_state_;
+
 
 	Server::Server()
 	{ 
@@ -32,6 +34,7 @@ namespace irc
 		polls_.push_back(server_poll);
 
 		server_password_ = password;
+		server_state_ = RUNNING;
 	}
 
 	void Server::Run()
@@ -77,6 +80,12 @@ namespace irc
 				it++;
 		}
 	}
+
+	ServerState Server::GetState()
+	{ return server_state_;	}
+
+	void Server::ShutDown()
+	{ server_state_ = SHUTDOWN; }
 
 	void Server::AddConnection(ClientConnection* new_connection)
 	{

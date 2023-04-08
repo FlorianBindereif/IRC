@@ -155,6 +155,12 @@ namespace irc
 		return std::string(":") + SERVERNAME + " 482 " + nick + " " + channel_name + " :You're not channel operator \r\n";
 	}
 
+	std::string ERR_NOPRIVS(const std::string& nick, const std::string& command)
+	{
+		std::cout << RED << nick << "tried executing OP Command " << command << " but is not Operator!" << RESET << "\n";
+		return std::string(":") + SERVERNAME + " 481 " + command + " :Permission Denied- You're not an IRC operator\r\n";
+	}
+
 	std::string	RPL_NAMREPLY(const std::string& nick, const std::string& channel)
 	{
 		return std::string(":") + SERVERNAME + " 353 " + nick + " = " + channel + " :";

@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cstdlib>
 #include "../inc/Server.hpp"
 
 int main(int argc, char** argv)
@@ -8,7 +9,7 @@ int main(int argc, char** argv)
 		std::cout << "Too few arguments: ./irc [port > 0] [password]" << std::endl;
 		return 0;
 	}
-	int port = atoi(argv[1]);
+	int port = std::atoi(argv[1]);
 	if (port <= 0)
 	{
 		std::cout << "bad port: ./irc [port > 0] [password]" << std::endl;
@@ -18,7 +19,7 @@ int main(int argc, char** argv)
 	{
 		irc::Server server;
 		server.Init(argv[2], port);
-		while(true)
+		while(server.GetState() == irc::RUNNING)
 		{
 			server.Run();
 		}
@@ -27,4 +28,5 @@ int main(int argc, char** argv)
 	{
 		std::cerr << error.what() << '\n';
 	}
+	return 0;
 }
