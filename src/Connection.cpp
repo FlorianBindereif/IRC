@@ -140,7 +140,7 @@ namespace irc
 			return SendMessage(message);
 		if (message.command == "INVITE")
 			return InviteClient(message);
-		if (message.command == "TOPIC")
+		if (message.command == "TOPIC") 
 			return SetTopic(message);
 		if (message.command == "KICK")
 			return KickMember(message);
@@ -246,7 +246,7 @@ namespace irc
 		ClientConnection* target = Server::GetConnection(message.middle_params.front());
 		if (target == nullptr)
 			return output_buffer_.Append(ERR_NOSUCHNICK(user.nick, message.middle_params[1]));
-		if (!channel->IsRegistered(target))
+		if (channel->IsRegistered(target))
 			return output_buffer_.Append(ERR_USERONCHANNEL(user.nick, message.middle_params[1], target->user.nick));
 		output_buffer_.Append(RPL_INVITING(user.nick, message.middle_params[1], target->user.nick));
 		target->output_buffer_.Append(RPL_INVITED(user.nick, user.username, message.middle_params[1],target->user.nick));
@@ -534,6 +534,8 @@ namespace irc
 	{
 		if (message.middle_params.front().empty())
 			return output_buffer_.Append(ERR_NONICKNAMEGIVEN());
+		if (!ValidNickName(message.middle_params.front()))
+			return output_buffer_.Append(ERR_ERRONEUSNICKNAME(user.nick, message.middle_params.front()));
 		if (!Server::CheckNickAvailability(message.middle_params.front()))
 			return output_buffer_.Append(ERR_NICKNAMEINUSE(message.middle_params.front()));
 		if (state == REGISTERED)

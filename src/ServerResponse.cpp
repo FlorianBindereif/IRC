@@ -64,6 +64,15 @@ namespace irc
 		return std::string(":") + SERVERNAME + " 403 " +  nick + " " + channel_name + " : No such channel\r\n";
 	}
 
+	std::string ERR_ERRONEUSNICKNAME(std::string& nick, std::string& wrong_nick)
+	{
+		std::cout << RED << nick << "tried using invalid nick: " << wrong_nick  << "!" << RESET << "\n";
+		return std::string(":") + SERVERNAME + " 432 " + nick + " " + wrong_nick + " :Erroneous nickname\r\n";
+	}
+
+	#define ERR_ERRONEUSNICKNAME(src, nick, err_nick)						":" + src + " 432 " + nick + " " + err_nick + " :Erroneous nickname\r\n"
+
+
 	std::string RPL_JOIN(std::string& nick, std::string& user, std::string& channel_name)
 	{
 		std::cout << GREEN << nick << " joined channel " << channel_name << "!" << RESET << "\n";
@@ -240,6 +249,7 @@ namespace irc
 		std::cout << RED << nick << " tried executing unknown command: " << command << "!" << RESET << "\n";
 		return std::string(":") + SERVERNAME + " 421 " + nick + " " + command + " :Unknown command\r\n";
 	}
+
 	std::string RPL_BOT(const std::string& nick, const std::string& channel_name, const std::string& msg)
 	{
 		std::cout << GREEN << nick << " requested a bot on " << channel_name << "!" << RESET << "\n";
