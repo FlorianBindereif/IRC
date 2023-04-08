@@ -4,7 +4,7 @@
 
 hostname über getnameinfo holen.
 
-//output_buffer_ und input_buffer_ in public umbennen.
+//output_buffer und input_buffer in public umbennen.
 
 /just ignore it when i try to /nick my_nick
 # handdel nickname policy

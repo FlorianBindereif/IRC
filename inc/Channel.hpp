@@ -24,7 +24,7 @@ namespace irc
 	class Channel
 	{
 		private:
-			unsigned char								mode_;
+			unsigned char								channel_mode_;
 			std::string 								name_;
 			std::string									topic_;
 			std::vector<ClientConnection*>				invited_;			

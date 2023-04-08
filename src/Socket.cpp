@@ -28,7 +28,7 @@ namespace irc
 			throw ;
 		}
 	}
-
+	
 	Socket::Socket(int fd):fd_(fd)
 	{
 		try

@@ -22,7 +22,7 @@ namespace irc
 			{
 				if (!exlude_nick.empty() && it->first->user.nick == exlude_nick)
 					continue;;
-				it->first->output_buffer_.Append(message);
+				it->first->output_buffer.Append(message);
 			}
 		}
 	}
@@ -108,21 +108,21 @@ namespace irc
 			else if (mode[i] == '+')
 				add = true;
 			else if (mode[i] == 'm' && add)
-				mode_ |= 0b001;
+				channel_mode_ |= CHANMOD;
 			else if (mode[i] == 'm' && !add)
-				mode_ &= 0b110;
+				channel_mode_ &= ~CHANMOD;
 			else if (mode[i] == 'i' && add)
-				mode_ |= 0b010;
+				channel_mode_ |= INVIS;
 			else if (mode[i] == 'i' && !add)
-				mode_ &= 0b101;
+				channel_mode_ &= ~INVIS;
 			else if (mode[i] == 't' && add)
-				mode_ |= 0b100;
+				channel_mode_ |= CHANTOPIC;
 			else if (mode[i] == 't' && !add)
-				mode_ &= 0b011;
+				channel_mode_ &= ~CHANTOPIC;
 			else if (mode[i] == 'b' && add)
-				mode_ |= 0b1000;
+				channel_mode_ |= CHANBOT;
 			else if (mode[i] == 'b' && !add)
-				mode_ &= 0b0111;
+				channel_mode_ &= ~CHANBOT;
 		}
 	}
 
@@ -151,9 +151,9 @@ namespace irc
 		std::string name_string;
 		for (std::map<ClientConnection *, unsigned char>::iterator it = registered_.begin(); it != registered_.end(); it++)
 		{
-			if (include_invis == false && ((*it).first->mode_ & 0b01))
+			if (include_invis == false && ((*it).first->client_mode & INVIS))
 				continue;
-			if (((*it).second & OPERATOR) == OPERATOR)
+			if (((*it).second & OPERATOR))
 				name_string += "@";
 			name_string += (*it).first->user.nick + " ";
 		}
@@ -161,18 +161,18 @@ namespace irc
 	}
 
 	unsigned char Channel::GetMode() const
-	{ return mode_; }
+	{ return channel_mode_; }
 
 	std::string Channel::GetModeString() const
 	{
 		std::string	mode("+");
-		if (mode_ & 0b0001)
+		if (channel_mode_ & CHANMOD)
 			mode += "m";
-		if (mode_ & 0b0010)
+		if (channel_mode_ & CHANINVITE)
 			mode += "i";
-		if (mode_ & 0b0100)
+		if (channel_mode_ & CHANTOPIC)
 			mode += "t";
-		if (mode_ & 0b1000)
+		if (channel_mode_ & CHANBOT)
 			mode += "b";
 		return mode;
 	}

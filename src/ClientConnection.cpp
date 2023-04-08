@@ -13,7 +13,7 @@
 
 namespace irc
 {
-	ClientConnection::ClientConnection(int fd): Connection(fd), mode_(0), hands(0,0) { }
+	ClientConnection::ClientConnection(int fd): Connection(fd), client_mode(0), hands(0,0) { }
 
 	ClientConnection::~ClientConnection() { }
 
@@ -25,18 +25,18 @@ namespace irc
 		received = recv(GetFd(), buffer, sizeof(buffer), 0);
 		if (received <= 0)
 			return ;
-		input_buffer_.Append(buffer, 0 , received);
-		while (input_buffer_.HoldsMessage())
-		{ ExecuteMessage(input_buffer_.GetMessage()); }
+		input_buffer.Append(buffer, 0 , received);
+		while (input_buffer.HoldsMessage())
+		{ ExecuteMessage(input_buffer.GetMessage()); }
 	}
 
 	void ClientConnection::Send()
 	{
-		if (output_buffer_.Empty())
+		if (output_buffer.Empty())
 			return ;
-		while(output_buffer_.HoldsMessage())
+		while(output_buffer.HoldsMessage())
 		{
-			std::string output = output_buffer_.GetMessageCR();
+			std::string output = output_buffer.GetMessageCR();
 			send(GetFd(), output.data(), output.size(), 0);
 		}
 	}
@@ -61,13 +61,13 @@ namespace irc
 		if (message.command == "CAP")
 			return SendCapabilities(message);
 		if (state < AUTHENTICATED)
-			return output_buffer_.Append(ERR_NOTREGISTERED(message.command));
+			return output_buffer.Append(ERR_NOTREGISTERED(message.command));
 		if (message.command == "NICK")
 			return SetNickname(message);
 		if (message.command == "USER")
 			return SetUsername(message);
 		if (state < REGISTERED)
-			return output_buffer_.Append(ERR_NOTREGISTERED(message.command));
+			return output_buffer.Append(ERR_NOTREGISTERED(message.command));
 		if (message.command == "JOIN")
 			return JoinChannel(message);
 		if (message.command == "PING")
@@ -94,48 +94,48 @@ namespace irc
 			return ShutdownServer(message);
 		if (message.command == "QUIT")
 			return LeaveServer();
-		output_buffer_.Append(ERR_UNKNOWNCOMMAND(user.nick, message.command));
+		output_buffer.Append(ERR_UNKNOWNCOMMAND(user.nick, message.command));
 	}
 
 	void ClientConnection::SendCapabilities(Message& message)
 	{ 
 		(void) message;
-		// output_buffer_.Append(RPL_CAP());
+		// output_buffer.Append(RPL_CAP());
 	}
 
 	void ClientConnection::Authenticate(Message& message)
 	{
 		if (state == AUTHENTICATED || state == REGISTERED)
-			return output_buffer_.Append(ERR_ALREADYREGISTRED());
+			return output_buffer.Append(ERR_ALREADYREGISTRED());
 		if (message.middle_params.front().empty())
-			return output_buffer_.Append(ERR_NEEDMOREPARAMS(message.command));
+			return output_buffer.Append(ERR_NEEDMOREPARAMS(message.command));
 		if (!Server::AuthenticatePassword(message.middle_params.front()))
-			return output_buffer_.Append(ERR_PASSWDMISMATCH());
+			return output_buffer.Append(ERR_PASSWDMISMATCH());
 		state = AUTHENTICATED;
 	}
 
 	void ClientConnection::SetUsername(Message& message)
 	{
 		if (message.middle_params.size() != 3 && message.trailing.size() != 1)
-			return output_buffer_.Append(ERR_NEEDMOREPARAMS(message.command));
+			return output_buffer.Append(ERR_NEEDMOREPARAMS(message.command));
 		if (state == REGISTERED)
-			return output_buffer_.Append((ERR_ALREADYREGISTRED()));
+			return output_buffer.Append((ERR_ALREADYREGISTRED()));
 		user.username = message.trailing;
 		if(!user.nick.empty())
 		{
 			state = REGISTERED;
-			output_buffer_.Append(RPL_WELCOME(user.nick, user.username));
+			output_buffer.Append(RPL_WELCOME(user.nick, user.username));
 		}
 	}
 
 	void ClientConnection::SetNickname(Message& message)
 	{
 		if (message.middle_params.front().empty())
-			return output_buffer_.Append(ERR_NONICKNAMEGIVEN());
+			return output_buffer.Append(ERR_NONICKNAMEGIVEN());
 		if (!ValidNickName(message.middle_params.front()))
-			return output_buffer_.Append(ERR_ERRONEUSNICKNAME(user.nick, message.middle_params.front()));
+			return output_buffer.Append(ERR_ERRONEUSNICKNAME(user.nick, message.middle_params.front()));
 		if (!Server::CheckNickAvailability(message.middle_params.front()))
-			return output_buffer_.Append(ERR_NICKNAMEINUSE(message.middle_params.front()));
+			return output_buffer.Append(ERR_NICKNAMEINUSE(message.middle_params.front()));
 		if (state == REGISTERED)
 		{
 			for (std::vector<std::string>::size_type i = 0; i < channel_list.size(); i++)
@@ -144,12 +144,12 @@ namespace irc
 				if (channel != nullptr)
 					channel->Broadcast(RPL_NICKCHANGE(user.nick, message.middle_params.front(), user.username), user.nick);
 			}
-			output_buffer_.Append(RPL_NICKCHANGE(user.nick, message.middle_params.front(), user.username));
+			output_buffer.Append(RPL_NICKCHANGE(user.nick, message.middle_params.front(), user.username));
 		}
 		else if (!user.username.empty())
 		{
 			state = REGISTERED;
-			output_buffer_.Append(RPL_WELCOME(message.middle_params.front(), user.username));
+			output_buffer.Append(RPL_WELCOME(message.middle_params.front(), user.username));
 		}
 		user.nick = message.middle_params.front();
 	}
@@ -157,13 +157,13 @@ namespace irc
 	void ClientConnection::JoinChannel(Message& message)
 	{
 		if (message.middle_params.empty())
-			return output_buffer_.Append(ERR_NEEDMOREPARAMS(message.command));
+			return output_buffer.Append(ERR_NEEDMOREPARAMS(message.command));
 		std::istringstream iss(message.middle_params.front());
 		std::string channel_name;
 		while(getline(iss, channel_name, ','))
 		{
 			if (!ValidChannelName(channel_name))
-				output_buffer_.Append(ERR_NOSUCHCHANNEL(user.nick, channel_name));
+				output_buffer.Append(ERR_NOSUCHCHANNEL(user.nick, channel_name));
 			else
 			{
 				Channel* channel = Server::GetChannel(channel_name);
@@ -176,7 +176,7 @@ namespace irc
 					continue;
 				else if ((channel->GetMode() & CHANINVITE) && !channel->IsInvited(this))
 				{
-					output_buffer_.Append(ERR_INVITEONLYCHAN(user.nick, channel_name));
+					output_buffer.Append(ERR_INVITEONLYCHAN(user.nick, channel_name));
 					continue ;
 				}
 				else
@@ -184,29 +184,29 @@ namespace irc
 				channel_list.push_back(channel->GetName());
 				channel->Broadcast(RPL_JOIN(user.nick, user.username, channel_name));
 				if (!channel->GetTopic().empty())
-					output_buffer_.Append(RPL_TOPIC(user.nick, channel->GetName(), channel->GetTopic()));
-				output_buffer_.Append(RPL_NAMREPLY(user.nick, channel->GetName(), channel->GetRegisteredString()));
-				output_buffer_.Append(RPL_ENDOFNAMES(user.nick, channel->GetName()));
+					output_buffer.Append(RPL_TOPIC(user.nick, channel->GetName(), channel->GetTopic()));
+				output_buffer.Append(RPL_NAMREPLY(user.nick, channel->GetName(), channel->GetRegisteredString()));
+				output_buffer.Append(RPL_ENDOFNAMES(user.nick, channel->GetName()));
 			}
 		}
 	}
 
 	void ClientConnection::SendPong(Message& message)
-	{ output_buffer_.Append(RPL_PING(user.nick, message.middle_params.front()));	}
+	{ output_buffer.Append(RPL_PING(user.nick, message.middle_params.front()));	}
 
 
 		void ClientConnection::SetClientMode_(Message& message)
 	{
 		ClientConnection *client = Server::GetConnection(message.middle_params.front());
 		if (client == nullptr)
-			return output_buffer_.Append(ERR_NOSUCHNICK(message.middle_params.front()));
+			return output_buffer.Append(ERR_NOSUCHNICK(message.middle_params.front()));
 		if (client->user.nick != user.nick)
-			return output_buffer_.Append(ERR_USERSDONTMATCH(user.nick, message.middle_params.front()));
+			return output_buffer.Append(ERR_USERSDONTMATCH(user.nick, message.middle_params.front()));
 		if (message.middle_params.size() > 1)
 		{
 			std::string mode = CleanModeString_(message.middle_params[1], "io");
 			if (mode.empty())
-				return output_buffer_.Append(ERR_UMODEUNKNOWNFLAG(user.nick));
+				return output_buffer.Append(ERR_UMODEUNKNOWNFLAG(user.nick));
 			bool add;
 			for (std::string::size_type i = 0; i < mode.size(); i++)
 			{
@@ -215,34 +215,34 @@ namespace irc
 				if(mode[i] == '+')
 					add = true;
 				if (mode[i] == 'i' && add)
-					mode_ |= SERVINVIS;
+					client_mode |= SERVINVIS;
 				if (mode[i] == 'i' && !add)
-					mode_ &= ~SERVINVIS;
+					client_mode &= ~SERVINVIS;
 				if (mode[i] == 'o' && add)
-					mode_ |= SERVOP;
+					client_mode |= SERVOP;
 				if (mode[i] == 'o' && !add)
-					mode_ &= ~SERVOP;
+					client_mode &= ~SERVOP;
 			}
 		}
-		output_buffer_.Append(RPL_MODEUSER(user.nick, GetModeString_()));
+		output_buffer.Append(RPL_MODEUSER(user.nick, GetModeString_()));
 	}
 
 	void ClientConnection::SetChannelMode_(Message& message)
 	{
 		Channel* channel = Server::GetChannel(message.middle_params.front());
 		if (channel == nullptr)
-			return output_buffer_.Append(ERR_NOSUCHCHANNEL(user.nick, message.middle_params.front()));
+			return output_buffer.Append(ERR_NOSUCHCHANNEL(user.nick, message.middle_params.front()));
 		if (message.middle_params.size() == 1)
-			return output_buffer_.Append(RPL_CHANNELMODEIS(user.nick, message.middle_params.front(), channel->GetModeString()));
+			return output_buffer.Append(RPL_CHANNELMODEIS(user.nick, message.middle_params.front(), channel->GetModeString()));
 		if (!channel->IsOperator(this))
-			return output_buffer_.Append(ERR_CHANOPRIVSNEEDED(user.nick, channel->GetName()));
+			return output_buffer.Append(ERR_CHANOPRIVSNEEDED(user.nick, channel->GetName()));
 		std::string mode;
 		if (message.middle_params.size() == 2)
 			mode = CleanModeString_(message.middle_params[1], "timb");
 		else
 			mode = CleanModeString_(message.middle_params[1], "io");
 		if (mode.empty())
-			return output_buffer_.Append(ERR_UMODEUNKNOWNFLAG(user.nick));	
+			return output_buffer.Append(ERR_UMODEUNKNOWNFLAG(user.nick));	
 		if (message.middle_params.size() == 2)
 		{
 			channel->SetChannelMode(mode);
@@ -252,7 +252,7 @@ namespace irc
 		{
 			ClientConnection* target = Server::GetConnection(message.middle_params[2]);
 			if (target == nullptr)
-				return output_buffer_.Append(ERR_NOSUCHNICK(message.middle_params[2]));
+				return output_buffer.Append(ERR_NOSUCHNICK(message.middle_params[2]));
 			channel->SetRegisteredMode(target, mode);
 			channel->Broadcast(RPL_SETMODECLIENT(user.nick, user.username, channel->GetName(), mode, target->user.nick));
 		}
@@ -286,9 +286,9 @@ namespace irc
 	std::string ClientConnection::GetModeString_() const
 	{
 		std::string mode("+");
-		if ((mode_ & SERVINVIS) == SERVINVIS)
+		if ((client_mode & SERVINVIS) == SERVINVIS)
 			mode += "i";
-		if ((mode_ & SERVOP) == SERVOP)
+		if ((client_mode & SERVOP) == SERVOP)
 			mode += "o";
 		return mode; 
 	}
@@ -296,7 +296,7 @@ namespace irc
 	void ClientConnection::SetMode(Message& message)
 	{
 		if (message.middle_params.front().empty())
-			return output_buffer_.Append(ERR_NEEDMOREPARAMS(message.command));
+			return output_buffer.Append(ERR_NEEDMOREPARAMS(message.command));
 		if (message.middle_params.front().front() == '#')
 			SetChannelMode_(message);
 		else
@@ -306,7 +306,7 @@ namespace irc
 	void ClientConnection::SendNames(Message& message)
 	{
 		if (message.middle_params.empty())
-			return output_buffer_.Append(ERR_NEEDMOREPARAMS(message.command));
+			return output_buffer.Append(ERR_NEEDMOREPARAMS(message.command));
 		std::istringstream iss(message.middle_params.front());
 		std::string channel_name;
 		while(getline(iss, channel_name, ','))
@@ -314,7 +314,7 @@ namespace irc
 			Channel* channel = Server::GetChannel(channel_name);
 			if (channel == nullptr)
 			{
-				output_buffer_.Append(RPL_ENDOFNAMES(user.nick, channel_name));
+				output_buffer.Append(RPL_ENDOFNAMES(user.nick, channel_name));
 				continue;
 			}
 			std::string reply;
@@ -323,24 +323,24 @@ namespace irc
 			else
 				reply = channel->GetRegisteredString(false);
 			if (!reply.empty())
-				output_buffer_.Append(RPL_NAMREPLY(user.nick, channel_name, reply));
-			output_buffer_.Append(RPL_ENDOFNAMES(user.nick, channel_name));
+				output_buffer.Append(RPL_NAMREPLY(user.nick, channel_name, reply));
+			output_buffer.Append(RPL_ENDOFNAMES(user.nick, channel_name));
 		}
 	}
 
 	void ClientConnection::PartChannel(Message& message)
 	{
 		if (message.middle_params.empty())
-			return output_buffer_.Append(ERR_NEEDMOREPARAMS(message.command));
+			return output_buffer.Append(ERR_NEEDMOREPARAMS(message.command));
 		std::istringstream iss(message.middle_params.front());
 		std::string channel_name;
 		while(getline(iss, channel_name, ','))
 		{
 			Channel* channel = Server::GetChannel(channel_name);
 			if (channel == nullptr)
-				output_buffer_.Append(ERR_NOSUCHCHANNEL(user.nick, channel_name));
+				output_buffer.Append(ERR_NOSUCHCHANNEL(user.nick, channel_name));
 			else if (!channel->IsRegistered(this))
-				output_buffer_.Append(ERR_NOTONCHANNEL(user.nick, channel_name));
+				output_buffer.Append(ERR_NOTONCHANNEL(user.nick, channel_name));
 			else
 			{
 				if (message.trailing.empty())
@@ -359,24 +359,24 @@ namespace irc
 	void ClientConnection::SendMessage(Message& message)
 	{
 		if (message.middle_params.empty() || message.trailing.empty())
-			return output_buffer_.Append(ERR_NEEDMOREPARAMS(message.command));
+			return output_buffer.Append(ERR_NEEDMOREPARAMS(message.command));
 		if (message.middle_params.front().front() == '#')
 		{
 			Channel* channel = Server::GetChannel(message.middle_params.front());
 			if (channel == nullptr)
-				return output_buffer_.Append(ERR_NOSUCHNICK(user.nick, message.middle_params.front()));
+				return output_buffer.Append(ERR_NOSUCHNICK(user.nick, message.middle_params.front()));
 			if (!channel->IsRegistered(this))
-				return output_buffer_.Append(ERR_CANNOTSENDTOCHAN(user.nick, message.middle_params.front()));
+				return output_buffer.Append(ERR_CANNOTSENDTOCHAN(user.nick, message.middle_params.front()));
 			if ((channel->GetMode() & CHANMOD) && !channel->IsOperator(this))
-				return output_buffer_.Append(ERR_CHANOPRIVSNEEDED(user.nick, message.middle_params.front()));
+				return output_buffer.Append(ERR_CHANOPRIVSNEEDED(user.nick, message.middle_params.front()));
 			if ((channel->GetMode() & CHANBOT) && message.trailing.front() == '!')
-				return output_buffer_.Append(RPL_BOT(user.nick, channel->GetName(), BlackJackBot(this, message)));
+				return output_buffer.Append(RPL_BOT(user.nick, channel->GetName(), BlackJackBot(this, message)));
 			return channel->Broadcast(RPL_PRIVMSG(user.nick, user.username, message.middle_params.front(), message.trailing), user.nick);
 		}
 		ClientConnection* target = Server::GetConnection(message.middle_params.front());
 		if (target == nullptr)
-			return output_buffer_.Append(ERR_NOTONCHANNEL(user.nick, message.middle_params.front()));
-		target->output_buffer_.Append(RPL_PRIVMSG(user.nick, user.username, message.middle_params.front(), message.trailing));
+			return output_buffer.Append(ERR_NOTONCHANNEL(user.nick, message.middle_params.front()));
+		target->output_buffer.Append(RPL_PRIVMSG(user.nick, user.username, message.middle_params.front(), message.trailing));
 	}
 
 	void ClientConnection::SendNotice(Message& message)
@@ -397,15 +397,15 @@ namespace irc
 		Connection* target = Server::GetConnection(message.middle_params.front());
 		if (target == nullptr)
 			return ;
-		output_buffer_.Append(RPL_NOTICE(user.nick, user.username, message.middle_params.front(), message.trailing));
+		output_buffer.Append(RPL_NOTICE(user.nick, user.username, message.middle_params.front(), message.trailing));
 	}
 
-		void ClientConnection::ShutdownServer(Message& message)
+	void ClientConnection::ShutdownServer(Message& message)
 	{
-		if (mode_ & OPERATOR)
+		if (client_mode & OPERATOR)
 			Server::ShutDown();
 		else
-			output_buffer_.Append(ERR_NOPRIVS(user.nick, message.command));
+			output_buffer.Append(ERR_NOPRIVS(user.nick, message.command));
 	}
 
 	void ClientConnection::LeaveServer()
@@ -425,36 +425,36 @@ namespace irc
 	void ClientConnection::MakeOperator(Message& message)
 	{
 		if (message.middle_params.size() < 2)
-			return output_buffer_.Append(ERR_NEEDMOREPARAMS(message.command));
+			return output_buffer.Append(ERR_NEEDMOREPARAMS(message.command));
 		ClientConnection* target = Server::GetConnection(message.middle_params.front());
 		if (target == nullptr)
-			return output_buffer_.Append(ERR_NOSUCHNICK(user.nick));
+			return output_buffer.Append(ERR_NOSUCHNICK(user.nick));
 		if (message.middle_params[1] != SUDOPWD)
-			return output_buffer_.Append(ERR_PASSWDMISMATCH());
-		target->mode_ |= OPERATOR;
-		output_buffer_.Append(RPL_YOUREOPER(user.nick, target->user.nick));
+			return output_buffer.Append(ERR_PASSWDMISMATCH());
+		target->client_mode |= OPERATOR;
+		output_buffer.Append(RPL_YOUREOPER(user.nick, target->user.nick));
 	}
 
 	void ClientConnection::KickMember(Message& message)
 	{
 		if (message.middle_params.size() < 2)
-			return output_buffer_.Append(ERR_NEEDMOREPARAMS(message.command));
+			return output_buffer.Append(ERR_NEEDMOREPARAMS(message.command));
 		Channel* channel = Server::GetChannel(message.middle_params.front());
 		if (channel == nullptr)
-			return output_buffer_.Append(ERR_NOSUCHCHANNEL(user.nick, message.middle_params.front()));
+			return output_buffer.Append(ERR_NOSUCHCHANNEL(user.nick, message.middle_params.front()));
 		if (!channel->IsRegistered(this))
-			return output_buffer_.Append(ERR_NOTONCHANNEL(user.nick, message.middle_params.front()));
+			return output_buffer.Append(ERR_NOTONCHANNEL(user.nick, message.middle_params.front()));
 		if (!channel->IsOperator(this))
-			return output_buffer_.Append(ERR_CHANOPRIVSNEEDED(user.nick, message.middle_params.front()));
+			return output_buffer.Append(ERR_CHANOPRIVSNEEDED(user.nick, message.middle_params.front()));
 		std::istringstream iss(message.middle_params[1]);
 		std::string target_name;
 		while(getline(iss, target_name, ','))
 		{
 			ClientConnection* target = Server::GetConnection(target_name);
 			if (target == nullptr)
-				output_buffer_.Append(ERR_NOSUCHNICK(user.nick, target_name));
+				output_buffer.Append(ERR_NOSUCHNICK(user.nick, target_name));
 			else if (!channel->IsRegistered(target))
-				output_buffer_.Append(ERR_USERNOTINCHANNEL(user.nick, message.middle_params.front()));
+				output_buffer.Append(ERR_USERNOTINCHANNEL(user.nick, message.middle_params.front()));
 			if (message.trailing.empty())
 				channel->Broadcast(RPL_KICK(user.nick, user.username, channel->GetName(), target->user.nick));
 			else
@@ -468,18 +468,18 @@ namespace irc
 	void ClientConnection::SetTopic(Message& message)
 	{
 		if (message.middle_params.empty())
-			return output_buffer_.Append(ERR_NEEDMOREPARAMS(message.command));
+			return output_buffer.Append(ERR_NEEDMOREPARAMS(message.command));
 		Channel* channel = Server::GetChannel(message.middle_params.front());
 		if (channel == nullptr)
-			return output_buffer_.Append(ERR_NOSUCHCHANNEL(user.nick, message.middle_params.front()));
+			return output_buffer.Append(ERR_NOSUCHCHANNEL(user.nick, message.middle_params.front()));
 		if (message.trailing.empty())
 		{
 			if (channel->GetTopic().empty())
-				return output_buffer_.Append(RPL_NOTOPIC(user.nick, message.middle_params.front()));
-			return output_buffer_.Append(RPL_TOPIC(user.nick, message.middle_params.front(), channel->GetTopic()));
+				return output_buffer.Append(RPL_NOTOPIC(user.nick, message.middle_params.front()));
+			return output_buffer.Append(RPL_TOPIC(user.nick, message.middle_params.front(), channel->GetTopic()));
 		}
 		if ((CHANTOPIC | CHANMOD) & channel->GetMode() && !channel->IsOperator(this))
-			return output_buffer_.Append(ERR_CHANOPRIVSNEEDED(user.nick, message.middle_params.front()));
+			return output_buffer.Append(ERR_CHANOPRIVSNEEDED(user.nick, message.middle_params.front()));
 		channel->SetTopic(message.trailing);
 		channel->Broadcast(RPL_TOPICCHANGE(user.nick, user.username, message.middle_params.front(), message.trailing));
 	}
@@ -487,21 +487,21 @@ namespace irc
 	void ClientConnection::InviteClient(Message& message)
 	{
 		if (message.middle_params.size() < 2)
-			return output_buffer_.Append(ERR_NEEDMOREPARAMS(message.command));
+			return output_buffer.Append(ERR_NEEDMOREPARAMS(message.command));
 		Channel* channel = Server::GetChannel(message.middle_params[1]);
 		if (channel == nullptr)
-			return output_buffer_.Append(ERR_NOSUCHCHANNEL(user.nick, message.middle_params[1]));
+			return output_buffer.Append(ERR_NOSUCHCHANNEL(user.nick, message.middle_params[1]));
 		if (!channel->IsRegistered(this))
-			return output_buffer_.Append(ERR_NOTONCHANNEL(user.nick, message.middle_params[1]));
+			return output_buffer.Append(ERR_NOTONCHANNEL(user.nick, message.middle_params[1]));
 		if (!channel->IsOperator(this))
-			return output_buffer_.Append(ERR_CHANOPRIVSNEEDED(user.nick, message.middle_params[1]));
+			return output_buffer.Append(ERR_CHANOPRIVSNEEDED(user.nick, message.middle_params[1]));
 		ClientConnection* target = Server::GetConnection(message.middle_params.front());
 		if (target == nullptr)
-			return output_buffer_.Append(ERR_NOSUCHNICK(user.nick, message.middle_params[1]));
+			return output_buffer.Append(ERR_NOSUCHNICK(user.nick, message.middle_params[1]));
 		if (channel->IsRegistered(target))
-			return output_buffer_.Append(ERR_USERONCHANNEL(user.nick, message.middle_params[1], target->user.nick));
-		output_buffer_.Append(RPL_INVITING(user.nick, message.middle_params[1], target->user.nick));
-		target->output_buffer_.Append(RPL_INVITED(user.nick, user.username, message.middle_params[1],target->user.nick));
+			return output_buffer.Append(ERR_USERONCHANNEL(user.nick, message.middle_params[1], target->user.nick));
+		output_buffer.Append(RPL_INVITING(user.nick, message.middle_params[1], target->user.nick));
+		target->output_buffer.Append(RPL_INVITED(user.nick, user.username, message.middle_params[1],target->user.nick));
 		channel->GiveInvite(target);
 	}
 }
