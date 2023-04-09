@@ -1,15 +1,15 @@
+#include <iostream>
+#include <sstream>
+
 #include "../inc/ServerReponse.hpp"
 #include "../inc/config.hpp"
 #include "../inc/Print.hpp"
-#include <iostream>
-#include <sstream>
 
 namespace irc
 {
 	/***********************************************
 		ERROR REPLIES
 	***********************************************/
-
 	std::string ERR_NEEDMOREPARAMS(std::string& command) 
 	{ 
 		std::cout << RED << command << ": more Parameters needed to execute command: " << command << "!" << RESET << "\n";
@@ -127,7 +127,6 @@ namespace irc
 	/***********************************************
 		COMMAND REPLIES
 	***********************************************/
-
 	std::string RPL_NICKCHANGE(std::string& old_nick, std::string& new_nick, std::string& user) 
 	{ 
 		std::cout << GREEN << "User changed his nickname from " << old_nick << " to " << new_nick << "!" << RESET << "\n";
@@ -213,7 +212,6 @@ namespace irc
 	/***********************************************
 		NUMERIC REPLIES
 	***********************************************/
-
 	std::string RPL_WELCOME(std::string& nick, std::string user) 
 	{
 		std::cout << GREEN << "User: " << user << " succesfully registered to the server, using nick " << nick << "!" << RESET << "\n";
@@ -253,11 +251,6 @@ namespace irc
 	{
 		std::cout << GREEN << nick << " make " << target << " a server operator!" << RESET << "\n";
 		return std::string(":") + SERVERNAME + " 381 " + "PASS :You are now an IRC operator\r\n";
-	}
-
-	std::string	RPL_NAMREPLY(const std::string& nick, const std::string& channel)
-	{
-		return std::string(":") + SERVERNAME + " 353 " + nick + " = " + channel + " :";
 	}
 
 	std::string	RPL_INVITING(const std::string& nick, const std::string& channel_name, const std::string& target)

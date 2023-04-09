@@ -5,8 +5,8 @@
 
 namespace irc
 {
-	bool	ValidChannelName(std::string& name);
-	bool	ValidNickName(std::string& name);
+	bool ValidChannelName(std::string &name);
+	bool ValidNickName(std::string &name);
 }
 
 #endif

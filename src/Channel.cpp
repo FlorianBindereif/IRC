@@ -2,105 +2,123 @@
 
 namespace irc
 {
-	Channel::Channel(std::string name): name_(name) { }
+	Channel::Channel(std::string name) : name_(name) {}
 
-	void Channel::AddConnection(ClientConnection* to_join, unsigned char permission = MEMBER)
-	{ registered_.insert(std::make_pair(to_join, permission)); }
-
-	void Channel::RemoveConnection(ClientConnection* to_leave)
-	{ 
-		std::map<ClientConnection *, unsigned char>:: iterator it = registered_.find(to_leave);
-		if (it != registered_.end())
-			registered_.erase(to_leave); 
+	void Channel::AddConnection(ClientConnection *to_join, unsigned char permission = MEMBER)
+	{
+		registered_.insert(std::make_pair(to_join, permission));
 	}
 
-	void Channel::Broadcast(const std::string& message, std::string exlude_nick)
+	void Channel::RemoveConnection(ClientConnection *to_leave)
+	{
+		std::map<ClientConnection *, unsigned char>::iterator it = registered_.find(to_leave);
+		if (it != registered_.end())
+			registered_.erase(to_leave);
+	}
+
+	void Channel::Broadcast(const std::string &message, std::string exlude_nick)
 	{
 		for (std::map<ClientConnection *, unsigned char>::iterator it = registered_.begin(); it != registered_.end(); it++)
 		{
 			if (it->first->GetStatus() != DISCONNECTED)
 			{
 				if (!exlude_nick.empty() && it->first->user.nick == exlude_nick)
-					continue;;
+					continue;
 				it->first->output_buffer.Append(message);
 			}
 		}
 	}
 
-	bool Channel::IsOperator(ClientConnection* connection)
+	bool Channel::IsOperator(ClientConnection *connection)
 	{
 		std::map<ClientConnection *, unsigned char>::iterator it = registered_.find(connection);
 		return it == registered_.end() ? false : (it->second & OPERATOR) == OPERATOR;
 	}
 
-	bool Channel::IsInvis(ClientConnection* connection)
+	bool Channel::IsInvis(ClientConnection *connection)
 	{
 		std::map<ClientConnection *, unsigned char>::iterator it = registered_.find(connection);
 		return it == registered_.end() ? false : (it->second & OPERATOR) == OPERATOR;
 	}
 
-	bool Channel::IsInvited(ClientConnection* connection)
+	bool Channel::IsInvited(ClientConnection *connection)
 	{
-		std::vector<ClientConnection*>::iterator it = std::find(invited_.begin(), invited_.end(), connection);
+		std::vector<ClientConnection *>::iterator it = std::find(invited_.begin(), invited_.end(), connection);
 		return it == invited_.end() ? false : true;
 	}
 
-	bool Channel::IsRegistered(ClientConnection* connection)
+	bool Channel::IsRegistered(ClientConnection *connection)
 	{
 		std::map<ClientConnection *, unsigned char>::iterator it = registered_.find(connection);
 		return it == registered_.end() ? false : true;
 	}
 
-	void Channel::GiveOperator(ClientConnection* connection)
+	void Channel::GiveOperator(ClientConnection *connection)
 	{
 		try
-		{ registered_.at(connection) |= OPERATOR; }
-		catch(const std::exception& e)
-		{ std::cerr << connection->user.nick << " tried to gain op permissions but was not registered to the channel" << name_ << '\n'; }
-	}		
-
-	void Channel::TakeOperator(ClientConnection* connection)
-	{ 	try
-		{ registered_.at(connection) &= ~OPERATOR; }
-		catch(const std::exception& e)
-		{ std::cerr << connection->user.nick << " tried to lose op permissions but was not registered to the channel" << name_ << '\n'; } 
+		{
+			registered_.at(connection) |= OPERATOR;
+		}
+		catch (const std::exception &e)
+		{
+			std::cerr << connection->user.nick << " tried to gain op permissions but was not registered to the channel" << name_ << '\n';
+		}
 	}
 
-	void Channel::GiveInvite(ClientConnection* connection)
-	{ 
+	void Channel::TakeOperator(ClientConnection *connection)
+	{
+		try
+		{
+			registered_.at(connection) &= ~OPERATOR;
+		}
+		catch (const std::exception &e)
+		{
+			std::cerr << connection->user.nick << " tried to lose op permissions but was not registered to the channel" << name_ << '\n';
+		}
+	}
+
+	void Channel::GiveInvite(ClientConnection *connection)
+	{
 		std::vector<ClientConnection *>::iterator it = std::find(invited_.begin(), invited_.end(), connection);
 		if (it == invited_.end())
 			invited_.push_back(connection);
 	}
 
-	void Channel::TakeInvite(ClientConnection* connection)
+	void Channel::TakeInvite(ClientConnection *connection)
 	{
 		std::vector<ClientConnection *>::iterator it = std::find(invited_.begin(), invited_.end(), connection);
 		if (it != invited_.end())
 			invited_.erase(it);
 	}
-	
-	void Channel::GiveInvis(ClientConnection* connection)
+
+	void Channel::GiveInvis(ClientConnection *connection)
 	{
 		try
-		{ registered_.at(connection) |= INVIS; }
-		catch(const std::exception& e)
-		{ std::cerr << connection->user.nick << " tried to gain invisibility but was not registered to the channel" << name_ << '\n'; }
-	}		
-
-	void Channel::TakeInvis(ClientConnection* connection)
-	{ 	try
-		{ registered_.at(connection) &= ~INVIS; }
-		catch(const std::exception& e)
-		{ std::cerr << connection->user.nick << " tried to lose invisibility but was not registered to the channel" << name_ << '\n'; } 
+		{
+			registered_.at(connection) |= INVIS;
+		}
+		catch (const std::exception &e)
+		{
+			std::cerr << connection->user.nick << " tried to gain invisibility but was not registered to the channel" << name_ << '\n';
+		}
 	}
 
+	void Channel::TakeInvis(ClientConnection *connection)
+	{
+		try
+		{
+			registered_.at(connection) &= ~INVIS;
+		}
+		catch (const std::exception &e)
+		{
+			std::cerr << connection->user.nick << " tried to lose invisibility but was not registered to the channel" << name_ << '\n';
+		}
+	}
 
 	void Channel::SetChannelMode(std::string mode)
 	{
-		bool	add = true;
+		bool add = true;
 
-		// tilde implemntieren
 		for (std::string::size_type i = 0; i < mode.size(); i++)
 		{
 			if (mode[i] == '-')
@@ -126,7 +144,7 @@ namespace irc
 		}
 	}
 
-	void Channel::SetRegisteredMode(ClientConnection* target, std::string& mode)
+	void Channel::SetRegisteredMode(ClientConnection *target, std::string &mode)
 	{
 		bool add;
 		for (std::string::size_type i = 0; i < mode.size(); i++)
@@ -160,12 +178,11 @@ namespace irc
 		return name_string;
 	}
 
-	unsigned char Channel::GetMode() const
-	{ return channel_mode_; }
+	unsigned char Channel::GetMode() const { return channel_mode_; }
 
 	std::string Channel::GetModeString() const
 	{
-		std::string	mode("+");
+		std::string mode("+");
 		if (channel_mode_ & CHANMOD)
 			mode += "m";
 		if (channel_mode_ & CHANINVITE)
@@ -177,15 +194,11 @@ namespace irc
 		return mode;
 	}
 
-	std::string Channel::GetName() const
-	{ return name_; }
+	std::string Channel::GetName() const { return name_; }
 
-	void Channel::SetTopic(std::string& topic)
-	{ topic_ = topic; }
+	void Channel::SetTopic(std::string &topic) { topic_ = topic; }
 
-	std::string Channel::GetTopic()
-	{ return topic_;}
+	std::string Channel::GetTopic() { return topic_; }
 
-	bool Channel::IsEmpty()
-	{ return registered_.empty(); }
+	bool Channel::IsEmpty() { return registered_.empty(); }
 }

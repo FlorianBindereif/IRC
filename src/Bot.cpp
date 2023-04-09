@@ -1,14 +1,14 @@
 #include <cstdlib>
 #include <sstream>
+
 #include "../inc/Bot.hpp"
 #include "../inc/Print.hpp"
 
 namespace irc
 {
-	static int RandomCard()
-	{ return (std::rand() % 9) + 2;	}
+	static int RandomCard() { return (std::rand() % 9) + 2; }
 
-	static std::string PlayerDrawsACard(ClientConnection* client)
+	static std::string PlayerDrawsACard(ClientConnection *client)
 	{
 		std::stringstream output;
 		short card = RandomCard();
@@ -17,7 +17,7 @@ namespace irc
 		return output.str();
 	}
 
-	static std::string DealerDrawsACard(ClientConnection* client)
+	static std::string DealerDrawsACard(ClientConnection *client)
 	{
 		std::stringstream output;
 		short card = RandomCard();
@@ -26,7 +26,7 @@ namespace irc
 		return output.str();
 	}
 
-	std::string BlackJackBot(ClientConnection* client, Message& message)
+	std::string BlackJackBot(ClientConnection *client, Message &message)
 	{
 		std::stringstream output;
 		if (message.trailing == "!Blackjack")

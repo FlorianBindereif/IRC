@@ -1,8 +1,9 @@
 #include <iostream>
 #include <cstdlib>
+
 #include "../inc/Server.hpp"
 
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
 	if (argc < 3)
 	{
@@ -19,12 +20,12 @@ int main(int argc, char** argv)
 	{
 		irc::Server server;
 		server.Init(argv[2], port);
-		while(server.GetState() == irc::RUNNING)
+		while (server.GetState() == irc::RUNNING)
 		{
 			server.Run();
 		}
 	}
-	catch(const std::exception& error)
+	catch (const std::exception &error)
 	{
 		std::cerr << error.what() << '\n';
 	}

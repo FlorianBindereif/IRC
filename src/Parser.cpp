@@ -1,5 +1,6 @@
-#include "../inc/Parser.hpp"
 #include <sstream>
+
+#include "../inc/Parser.hpp"
 #include "../inc/Print.hpp"
 #include "../inc/config.hpp"
 
@@ -21,7 +22,7 @@ namespace irc
 		return message;
 	}
 
-	void MessageParser::ParsePrefix_(Prefix& prefix)
+	void MessageParser::ParsePrefix_(Prefix &prefix)
 	{
 		if (to_parse_.front() == ':')
 		{
@@ -53,7 +54,7 @@ namespace irc
 		}
 	}
 
-	void MessageParser::ParseCommand_(std::string& command)
+	void MessageParser::ParseCommand_(std::string &command)
 	{
 		size_type end = to_parse_.find(' ');
 		if (end != std::string::npos)
@@ -65,17 +66,17 @@ namespace irc
 			command = to_parse_;
 	}
 
-	void MessageParser::ParseParams_(std::vector<std::string>& params, std::string& trailing)
+	void MessageParser::ParseParams_(std::vector<std::string> &params, std::string &trailing)
 	{
 		std::istringstream iss(to_parse_);
 		std::string token;
 
-		while(iss >> token)
+		while (iss >> token)
 		{
 			if (token.front() == ':')
 			{
 				trailing.append(token.substr(1));
-				while(iss >> token)
+				while (iss >> token)
 					trailing.append(" " + token);
 				break;
 			}
@@ -83,7 +84,7 @@ namespace irc
 		}
 	}
 
-	std::ostream& operator<<(std::ostream& os, const Message& message)
+	std::ostream &operator<<(std::ostream &os, const Message &message)
 	{
 		// os << "PREFIX:" << "\n";
 		// os << "nick:\t\t" << message.prefix.name << "\n";

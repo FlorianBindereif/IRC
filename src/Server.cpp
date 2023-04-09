@@ -10,9 +10,8 @@ namespace irc
 	std::string Server::server_password_;
 	ServerState Server::server_state_;
 
-
 	Server::Server()
-	{ 
+	{
 		polls_.reserve(1024);
 		connections_.reserve(1024);
 	}
@@ -20,12 +19,12 @@ namespace irc
 	Server::~Server()
 	{
 		for (conn_iter it = connections_.begin(); it != connections_.end(); it++)
-			delete(*it);
+			delete (*it);
 	}
 
 	void Server::Init(std::string password, int port)
 	{
-		ServerConnection* server_con = new ServerConnection();
+		ServerConnection *server_con = new ServerConnection();
 		server_con->SetOptions();
 		server_con->Bind(port);
 		server_con->Listen();
@@ -42,7 +41,7 @@ namespace irc
 	{
 		int revent_count = poll(polls_.data(), polls_.size(), 100);
 		if (revent_count == -1)
-			return ;
+			return;
 		for (size_type i = 0; i < polls_.size(); i++)
 		{
 			if (polls_[i].revents == 0)
@@ -82,35 +81,35 @@ namespace irc
 		}
 	}
 
-	ServerState Server::GetState()
-	{ return server_state_;	}
+	ServerState Server::GetState() { return server_state_; }
 
-	void Server::ShutDown()
-	{ server_state_ = SHUTDOWN; }
+	void Server::ShutDown() { server_state_ = SHUTDOWN; }
 
-	void Server::AddConnection(ClientConnection* new_connection)
+	void Server::AddConnection(ClientConnection *new_connection)
 	{
 		Server::connections_.push_back(new_connection);
 		pollfd client_poll = {.revents = 0, .events = POLLEVENTS, .fd = new_connection->GetFd()};
 		Server::polls_.push_back(client_poll);
 	}
 
-	Channel* Server::AddChannel(std::string& channel_name)
-	{ 
+	Channel *Server::AddChannel(std::string &channel_name)
+	{
 		std::pair<std::string, Channel> pair = std::make_pair(channel_name, Channel(channel_name));
 		return &(channels_.insert(pair).first->second);
 	}
 
-	Channel* Server::GetChannel(std::string& channel_name)
+	Channel *Server::GetChannel(std::string &channel_name)
 	{
 		chan_iter find = channels_.find(channel_name);
 		return find == channels_.end() ? nullptr : &(find->second);
 	}
 
-	bool Server::AuthenticatePassword(std::string& password)
-	{ return server_password_ == password ? true : false; }
+	bool Server::AuthenticatePassword(std::string &password)
+	{
+		return server_password_ == password ? true : false;
+	}
 
-	bool Server::CheckNickAvailability(std::string& nick)
+	bool Server::CheckNickAvailability(std::string &nick)
 	{
 		for (conn_iter it = connections_.begin(); it != connections_.end(); it++)
 		{
@@ -120,7 +119,7 @@ namespace irc
 		return true;
 	}
 
-	ClientConnection* Server::GetConnection(std::string& nick)
+	ClientConnection *Server::GetConnection(std::string &nick)
 	{
 		for (conn_iter it = connections_.begin(); it != connections_.end(); it++)
 		{

@@ -1,10 +1,10 @@
 #ifndef BUFFER_HPP
 #define BUFFER_HPP
 
-#include "config.hpp"
 #include <string>
 #include <iostream>
 
+#include "config.hpp"
 namespace irc
 {
 	class Buffer

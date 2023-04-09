@@ -5,20 +5,22 @@
 
 namespace irc
 {
-	class ServerConnection: public Connection
+	class ServerConnection : public Connection
 	{
-		public:
-							ServerConnection();
-			virtual 		~ServerConnection();
-		public:
-			void 			Receive();
-			void 			Send();
-			void			CloseConnection();
-		public:
-			void 			Bind(int port);
-			void 			Listen();
-			void 			SetOptions();
-			int				Accept();
+	public:
+		ServerConnection();
+		virtual ~ServerConnection();
+
+	public:
+		void Receive();
+		void Send();
+		void CloseConnection();
+
+	public:
+		void Bind(int port);
+		void Listen();
+		void SetOptions();
+		int Accept();
 	};
 }
 

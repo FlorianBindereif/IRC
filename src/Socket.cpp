@@ -1,13 +1,14 @@
-#include "../inc/Socket.hpp"
 #include <sys/socket.h>
 #include <fcntl.h>
 #include <stdexcept>
 #include <unistd.h>
 #include <netinet/in.h>
-#include <cstring>
 #include <arpa/inet.h>
-#include "../inc/config.hpp"
 #include <iostream>
+#include <cstring>
+
+#include "../inc/Socket.hpp"
+#include "../inc/config.hpp"
 
 namespace irc
 {
@@ -21,32 +22,31 @@ namespace irc
 				throw std::runtime_error("socket(PF_INET, SOCKSTREAM, 0) returned ERROR");
 			SetNonBlocking_();
 		}
-		catch(const std::exception& error)
-		{ 
+		catch (const std::exception &error)
+		{
 			std::cerr << error.what() << '\n';
 			Close();
-			throw ;
+			throw;
 		}
 	}
-	
-	Socket::Socket(int fd):fd_(fd)
+
+	Socket::Socket(int fd) : fd_(fd)
 	{
 		try
 		{
 			SetNonBlocking_();
 		}
-		catch(const std::exception& error)
-		{ 
+		catch (const std::exception &error)
+		{
 			std::cerr << error.what() << '\n';
 			Close();
-			throw ;
+			throw;
 		}
 	}
 
 	/* Destructs the Socket object and closes the internal file descriptor*/
-	Socket::~Socket()
-	{ Close(); }
-	
+	Socket::~Socket() { Close(); }
+
 	/*Sets socket to non-blocking state*/
 	void Socket::SetNonBlocking_()
 	{
