@@ -397,10 +397,10 @@ namespace irc
 				return;
 			return channel->Broadcast(RPL_NOTICE(user.nick, user.username, message.middle_params.front(), message.trailing), user.nick);
 		}
-		Connection *target = Server::GetConnection(message.middle_params.front());
+		ClientConnection *target = Server::GetConnection(message.middle_params.front());
 		if (target == nullptr)
 			return;
-		output_buffer.Append(RPL_NOTICE(user.nick, user.username, message.middle_params.front(), message.trailing));
+		target->output_buffer.Append(RPL_NOTICE(user.nick, user.username, message.middle_params.front(), message.trailing));
 	}
 
 	void ClientConnection::ShutdownServer(Message &message)
