@@ -10,7 +10,7 @@ namespace irc
 	/***********************************************
 		ERROR REPLIES
 	***********************************************/
-	std::string ERR_NEEDMOREPARAMS(std::string& command) 
+	std::string ERR_NEEDMOREPARAMS(const std::string& command) 
 	{ 
 		std::cout << RED << command << ": more Parameters needed to execute command: " << command << "!" << RESET << "\n";
 		return std::string(":") + SERVERNAME + " 461 " + command + " :Not enough parameters\r\n";
@@ -28,7 +28,7 @@ namespace irc
 		return std::string(":") + SERVERNAME + " 462 " ":Already registered in\r\n";
 	}
 
-	std::string ERR_NICKNAMEINUSE(std::string& nick) 
+	std::string ERR_NICKNAMEINUSE(const std::string& nick) 
 	{ 
 		std::cout << RED << "User tried claiming nickname already in use!" << RESET << "\n";
 		return std::string(":") + SERVERNAME " 433 " + nick + " :Nickname is already in use\r\n"; 
@@ -40,25 +40,25 @@ namespace irc
 		return std::string(":") + SERVERNAME + " 431 " + "NICK" + " :Nickname not given\r\n"; 
 	}
 
-	std::string ERR_NOTREGISTERED(std::string& command)
+	std::string ERR_NOTREGISTERED(const std::string& command)
 	{		
 		std::cout << RED << "User tried executing command " << command << " but was not registred!" << RESET << "\n";
 		return std::string(":") + SERVERNAME + " 451 " + ":You have not registered\r\n";
 	}
 
-	std::string ERR_NOSUCHCHANNEL(std::string& nick, std::string& channel_name)
+	std::string ERR_NOSUCHCHANNEL(const std::string& nick, const std::string& channel_name)
 	{
 		std::cout << RED << "User tried accessing channel " << channel_name << " but it did not exist" << RESET << "\n";
 		return std::string(":") + SERVERNAME + " 403 " +  nick + " " + channel_name + " : No such channel\r\n";
 	}
 
-	std::string ERR_ERRONEUSNICKNAME(std::string& nick, std::string& wrong_nick)
+	std::string ERR_ERRONEUSNICKNAME(const std::string& nick, const std::string& wrong_nick)
 	{
 		std::cout << RED << nick << "tried using invalid nick: " << wrong_nick  << "!" << RESET << "\n";
 		return std::string(":") + SERVERNAME + " 432 " + nick + " " + wrong_nick + " :Erroneous nickname\r\n";
 	}
 
-	std::string ERR_USERSDONTMATCH(std::string& nick, std::string& target)
+	std::string ERR_USERSDONTMATCH(const std::string& nick, const std::string& target)
 	{
 		std::cout << RED << nick << "tried changing mode for " << target << "!" << RESET << "\n";
 		return std::string(":") + SERVERNAME + " 502 " + nick + " : Cannot change mode for other users\r\n";
@@ -82,7 +82,7 @@ namespace irc
 		return std::string(":") + SERVERNAME +  " 404 " + nick + " " + channel_name + " :Cannot send to channel\r\n";
 	}
 
-	std::string ERR_CHANOPRIVSNEEDED(std::string& nick, const std::string& channel_name)
+	std::string ERR_CHANOPRIVSNEEDED(const std::string& nick, const std::string& channel_name)
 	{
 		std::cout << RED << nick << " tried changing mode for " << channel_name << " but did not have op permissions!" << RESET << "\n";
 		return std::string(":") + SERVERNAME + " 482 " + nick + " " + channel_name + " :You're not channel operator \r\n";
@@ -94,19 +94,19 @@ namespace irc
 		return std::string(":") + SERVERNAME + " 481 " + command + " :Permission Denied- You're not an IRC operator\r\n";
 	}
 
-	std::string ERR_UMODEUNKNOWNFLAG(std::string& nick)
+	std::string ERR_UMODEUNKNOWNFLAG(const std::string& nick)
 	{
 		std::cout << RED << nick << "used invalid mode flags" << RESET << "\n";
 		return std::string(":") + SERVERNAME + " 501 " + nick + " :Unknown MODE flags\r\n";
 	}
 
-	std::string ERR_USERONCHANNEL(std::string& nick, const std::string& channel_name, const std::string& target)
+	std::string ERR_USERONCHANNEL(const std::string& nick, const std::string& channel_name, const std::string& target)
 	{
 		std::cout << RED << nick << " inviting " << target << " to " << channel_name << " but he was already on channel!" << RESET << "\n";
 		return std::string(":") + SERVERNAME + " 443 " + nick + " " + channel_name + " :Is already on channel \r\n";
 	}
 
-	std::string ERR_USERNOTINCHANNEL(std::string& nick, const std::string& channel_name)
+	std::string ERR_USERNOTINCHANNEL(const std::string& nick, const std::string& channel_name)
 	{
 		std::cout << RED << nick << " is not in"  << channel_name << "!" << RESET << "\n";
 		return std::string(":") + "441 " + SERVERNAME + " " + nick + " " + channel_name + " : is not on channel \r\n";
@@ -118,7 +118,7 @@ namespace irc
 		return std::string(":") + SERVERNAME + + " 401 " + nick + " " + channel_name + " :You're not on that channel \r\n";
 	}
 
-	std::string ERR_INVITEONLYCHAN(std::string& nick, const std::string& channel_name)
+	std::string ERR_INVITEONLYCHAN(const std::string& nick, const std::string& channel_name)
 	{
 		std::cout << RED << nick << " tried joining " << channel_name << " but he was not invited!" << RESET << "\n";
 		return std::string(":") + SERVERNAME + " 473 " + nick + " " + channel_name + " : Cannot join channel (+i) - you must be invited\r\n";
@@ -127,7 +127,7 @@ namespace irc
 	/***********************************************
 		COMMAND REPLIES
 	***********************************************/
-	std::string RPL_NICKCHANGE(std::string& old_nick, std::string& new_nick, std::string& user) 
+	std::string RPL_NICKCHANGE(const std::string& old_nick, const std::string& new_nick, const std::string& user) 
 	{ 
 		std::cout << GREEN << "User changed his nickname from " << old_nick << " to " << new_nick << "!" << RESET << "\n";
 		return std::string(":") + old_nick + "!" + user + "@" + HOST + " " + "NICK" + " :" + new_nick + "\r\n";
@@ -139,13 +139,13 @@ namespace irc
 		return std::string(":") + SERVERNAME + " CAP * LS :cap reply...\r\n"; 
 	}
 
-	std::string RPL_JOIN(std::string& nick, std::string& user, std::string& channel_name)
+	std::string RPL_JOIN(const std::string& nick, const std::string& user, const std::string& channel_name)
 	{
 		std::cout << GREEN << nick << " joined channel " << channel_name << "!" << RESET << "\n";
 		return std::string(":") + nick + "!" + user + "@" + HOST + " JOIN " + channel_name + " * :" + user + "\r\n";
 	}
 
-	std::string RPL_PING(std::string& nick, std::string& token)
+	std::string RPL_PING(const std::string& nick, const std::string& token)
 	{
 		std::cout << GREEN << nick << " pinged this server! " << RESET << "\n";
 		return std::string(":") + SERVERNAME + " PONG " + SERVERNAME + " :" + token + "\r\n";
@@ -181,7 +181,7 @@ namespace irc
 		return std::string(":") + nick + "!" + user + "@" + HOST + " TOPIC " + channel_name + " :" + topic + "\r\n";
 	}
 
-	std::string RPL_KICK(const std::string& nick, const std::string& user, const std::string& channel_name, const std::string& target, std::string reason)
+	std::string RPL_KICK(const std::string& nick, const std::string& user, const std::string& channel_name, const std::string& target, const std::string reason)
 	{
 		std::cout << GREEN << nick << " kicked " << target << " of " << channel_name << " because: " << reason << "!" << RESET << "\n";
 		return std::string(":") +  nick + "!" + user + "@" + HOST + " KICK " + channel_name + " " + target + " :" + reason + "\r\n";
@@ -212,7 +212,7 @@ namespace irc
 	/***********************************************
 		NUMERIC REPLIES
 	***********************************************/
-	std::string RPL_WELCOME(std::string& nick, std::string user) 
+	std::string RPL_WELCOME(const std::string& nick, const std::string user) 
 	{
 		std::cout << GREEN << "User: " << user << " succesfully registered to the server, using nick " << nick << "!" << RESET << "\n";
 		return std::string(":") + SERVERNAME + " 001 " + nick + " :Welcome to the ft_irc network " + nick + "!" + user + "@" + HOST + "\r\n";
@@ -229,13 +229,13 @@ namespace irc
 		return std::string(":")  + SERVERNAME + " 366 " + nick + " " + channel_name + " :END of NAMES list\r\n";
 	}
 
-	std::string RPL_MODEUSER(std::string& nick, const std::string& mode)
+	std::string RPL_MODEUSER(const std::string& nick, const std::string& mode)
 	{
 		std::cout << GREEN << nick << " set his mode to " << mode << RESET << "\n";
 		return std::string(":") + SERVERNAME + " 221 " + nick + " " + mode + "\r\n";
 	}
 
-	std::string RPL_CHANNELMODEIS(std::string& nick, std::string& channel_name, const std::string& mode)
+	std::string RPL_CHANNELMODEIS(const std::string& nick, const std::string& channel_name, const std::string& mode)
 	{
 		std::cout << GREEN << nick << "requested " << channel_name << "'s mode: " << mode << RESET << "\n";
 		return std::string(":") + SERVERNAME + " 324 " + nick + " " + channel_name + " " + mode + "\r\n";
@@ -259,13 +259,13 @@ namespace irc
 		return std::string(":") + SERVERNAME + " 341 " + nick + " " + target + " " + channel_name + "\r\n";
 	}
 
-	std::string RPL_NOTOPIC(std::string& nick, const std::string& channel_name)
+	std::string RPL_NOTOPIC(const std::string& nick, const std::string& channel_name)
 	{
 		std::cout << GREEN << nick << " requested the topic of " << channel_name << " but no topic was set!" << RESET << "\n";
 		return std::string(":") + SERVERNAME + " 331 " + nick + " " + channel_name + " :No topic is set\r\n";
 	}
 
-	std::string RPL_TOPIC(std::string& nick, const std::string& channel_name, const std::string& topic)
+	std::string RPL_TOPIC(const std::string& nick, const std::string& channel_name, const std::string& topic)
 	{
 		std::cout << GREEN << nick << " requested the topic of " << channel_name << ": " << topic << "!" << RESET << "\n";
 		return std::string(":") + SERVERNAME + " 332 " + nick + " " + channel_name + " :" + topic + "\r\n";
